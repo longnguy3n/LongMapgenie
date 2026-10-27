@@ -6,7 +6,7 @@ LMG is based on the supplied FMG 3.0.12 Chrome bundle. It adds a separate Drive 
 
 ## Install
 
-1. Download `LMG-1.2.1-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgine/releases/latest) and extract it.
+1. Download `LMG-1.2.2-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgine/releases/latest) and extract it.
 2. If you already use FMG, export your existing saves with **Export all games**, then disable that extension.
 3. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 4. Select the extracted folder containing `manifest.json`.
@@ -147,3 +147,11 @@ Verification for v1.2.0: JavaScript tests cover manual-update completion, missin
 The Data tab refreshes profile/page availability while visible and after switching tabs or profiles. **Export all games** writes a legacy v3 file for the active profile. **Tải bản sao toàn bộ dữ liệu** writes the full `fmg-database-v1` snapshot across all profiles and requires neither an active profile nor Google OAuth; restore it in Drive settings using **Khôi phục file database**. Opening Data Manager is also independent of profile availability. Actions for the current map/game retain their context requirements.
 
 `node tests/data-browser.cjs` exercises late profile arrival, real legacy/full/Drive downloads, opening Data Manager without a profile, unchanged data after export, and both standalone and embedded popup contexts. The corresponding new endpoint is read-only and accepts messages only from LMG's own popup.
+
+### Local profiles (v1.2.2)
+
+Profiles can be created from an empty list without MapGenie login. The first local profile becomes active automatically. The old empty-state message incorrectly said "User not logged in" and hid the create button. Profile operations now show failures and preserve the existing selection if activation fails.
+
+The compiled repository copies in `content-scripts/backend.js` and `chunks/react-redux-toastr.min-Z6pgLarm.js` now allocate negative profile IDs inside a single IndexedDB transaction, considering both profiles and user IDs in progress tables. This fixes third-profile/concurrent collisions and avoids assigning retained progress from a deleted profile to a new one. Deletion removes the newest local profile's list entry, preserves its progress rows, and selects a remaining profile if necessary. The UI asks for confirmation before deletion.
+
+Run `node tests/profiles-browser.cjs` for real offline profile creation, activation/reload persistence, concurrent ID allocation, deletion, and export availability in both popup contexts. MapGenie account-specific imports still require login; local LMG profiles are independent of that account.

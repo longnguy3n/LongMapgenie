@@ -1,12 +1,12 @@
-LMG v1.2.1 fixes Data-tab controls staying disabled after the active profile becomes available.
+LMG v1.2.2 fixes local profile creation when the Profiles tab is empty.
 
-Previously, the popup read the profile only once on mount. If the backend/profile loaded later or changed while the popup remained open, Data kept its old disabled state. Data now refreshes when opened, when the profile list changes, on focus, and periodically while visible. Backend requests are bounded and connection problems are shown inline.
+The old UI displayed "User not logged in" for an empty local profile list and hid the create button unless a profile already existed. Local profile creation has no Pro check in LMG's backend. The Profiles tab now offers **Tạo profile** even without a MapGenie account, and explains that these are local LMG profiles.
 
-- **Export all games** becomes available once the current profile is detected and retains the legacy v3 save format.
-- **Tải bản sao toàn bộ dữ liệu** downloads a complete database backup, including every profile, even when no active profile is selected. Restore this format through Google Drive settings → Khôi phục file database; it is distinct from the legacy Data Manager format.
-- **Open data manager** can be used without an active profile.
-- Current-game/map and destructive actions still require the relevant page/profile context. The tab explains those requirements instead of leaving only disabled controls.
+- The first local profile is selected automatically. Profiles refresh while the tab is visible, and failed reads/actions show an error instead of pretending the operation succeeded.
+- Fixed duplicate IDs when creating a third guest profile. Allocation is transactional and checks existing profile IDs and user IDs referenced by saved progress, so concurrent creation and deleted-profile data do not collide.
+- Selecting a missing profile cannot clear the current selection.
+- Deleting the newest local profile requires confirmation and selects a remaining profile when needed. Saved progress rows are retained, and new profiles do not inherit those orphaned rows by reusing their IDs.
 
-Verification: reproduced the old disabled-state failure; 28 automated tests pass. Real Chromium clicks download and validate legacy v3 exports, full backups with/without an active profile, and the Drive settings export, in both standalone and MapGenie-embedded popups. Checks verify no data changes during export and reject requests from web pages. Drive-button regression tests also pass.
+Verification: all 28 automated tests pass, plus real Chromium/IndexedDB tests for first/third/concurrent creation, activation persistence, invalid selection, delete confirmation/fallback, preserved progress and Data-tab availability in standalone and embedded popups. Existing manual export and database restore tests also pass. All mutations in these tests use isolated profiles; no user's browser database was modified.
 
-Update using **Cập nhật ngay**, or install **LMG-1.2.1-chrome.zip** and reload the extension. Refresh open MapGenie tabs afterward. Existing OAuth settings are preserved by the Windows updater.
+Update with **Cập nhật ngay**, or install **LMG-1.2.2-chrome.zip**, reload LMG and refresh MapGenie tabs. Open **Profiles → Tạo profile**. These profiles are stored by LMG; MapGenie account login remains necessary for actions that import from that account.

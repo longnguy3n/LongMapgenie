@@ -1,2 +1,6 @@
 /* The legacy popup root disables pointer events; this button is outside its interactive container. */
 #fmg-drive-settings { pointer-events: auto; display: block; width: calc(100% - 24px); margin: 12px; padding: 10px; border: 1px solid #54736a; border-radius: 6px; background: #20483e; color: #dbfff3; font: 14px system-ui; cursor: pointer; }
+._profiles_czosh_1 button._profile_czosh_1 { color: inherit; font: inherit; text-align: left; }
+._profiles_czosh_1 #_add-profile-button_czosh_1,
+._profiles_czosh_1 #_delete-profile-button_czosh_1 { width: auto; height: auto; min-height: 36px; padding: 8px 10px; margin: 4px; border-radius: 6px; font-size: 12px; }
+._profiles_czosh_1 button:disabled { opacity: .5; cursor: default; }
