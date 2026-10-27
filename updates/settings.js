@@ -1,13 +1,21 @@
 (() => {
   'use strict';
   const el = id => document.getElementById(id);
+  let starting = false, refreshing = false, manualRunning = false;
   async function call(action, extra = {}) {
     const result = await chrome.runtime.sendMessage({ type: 'LMG_UPDATES_V1', action, ...extra });
     if (result?.error) throw new Error(result.error);
     return result?.data || {};
   }
   async function refresh() {
+    if (refreshing) return;
+    refreshing = true;
+    try {
     const state = await call('status');
+    manualRunning = state.manual?.state === 'running';
+    el('update-now').disabled = starting || manualRunning;
+    el('update-now').textContent = starting || manualRunning ? 'Đang cập nhật…' : 'Cập nhật ngay';
+    el('update-manual').textContent = manualRunning ? 'Windows đang kiểm tra, tải và cài bản mới. LMG sẽ tự nạp lại khi hoàn tất.' : state.manual?.message || '';
     el('update-version').textContent = 'Đang dùng v' + state.current;
     el('update-status').textContent = state.available ? 'Có bản v' + state.latest + '. Trình cập nhật Windows sẽ tự cài theo lịch nếu đã được thiết lập.' : state.checkedAt ? 'Chưa có bản mới hơn.' : 'Chưa kiểm tra release.';
     el('update-error').textContent = state.error || '';
@@ -16,7 +24,17 @@
     const helper = state.helper;
     el('update-helper').textContent = helper?.state === 'not-installed' || !helper ? 'Trình cập nhật Windows chưa được cài. Chạy Install-LMG-Updater.cmd trong thư mục LMG rồi chọn thư mục đã Load unpacked.' : helper.state === 'error' ? 'Trình cập nhật: ' + helper.message : helper.state === 'ready' ? 'Đã cài v' + helper.version + '. LMG sẽ tự nạp lại; tải lại tab MapGenie khi cần.' : helper.state === 'installing' ? 'Windows đang cài bản cập nhật…' : 'Trình cập nhật Windows đã cài. ' + (helper.message || '');
     el('update-release').href = state.url || 'https://github.com/longnguy3n/LongMapgine/releases/latest';
+    } finally { refreshing = false; }
   }
+  el('update-now').addEventListener('click', async () => {
+    starting = true;
+    el('update-now').disabled = true;
+    el('update-now').textContent = 'Đang gọi updater…';
+    el('update-manual').textContent = '';
+    try { await call('update-now'); await refresh(); }
+    catch (error) { el('update-manual').textContent = error.message; }
+    finally { starting = false; el('update-now').disabled = manualRunning; el('update-now').textContent = manualRunning ? 'Đang cập nhật…' : 'Cập nhật ngay'; }
+  });
   el('check-update').addEventListener('click', async () => {
     el('check-update').disabled = true;
     try { await call('check', { force: true }); await refresh(); }
@@ -25,5 +43,6 @@
   });
   chrome.storage.onChanged.addListener((changes, area) => { if (area === 'local' && changes['lmgUpdates.state']) void refresh().catch(() => {}); });
   void refresh().catch(() => {});
+  setInterval(() => { if (manualRunning) void refresh().catch(() => {}); }, 3000);
   setInterval(() => { void refresh().catch(() => {}); }, 15000);
 })();

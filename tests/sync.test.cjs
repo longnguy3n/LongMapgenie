@@ -16,7 +16,7 @@ function event() {
   const listeners = [];
   return { listeners, addListener(fn) { listeners.push(fn); }, fire(...args) { for (const fn of listeners) fn(...args); } };
 }
-function harness({ local = data(), base, remote = [], failStatus, configured = true } = {}) {
+function harness({ local = data(), base, remote = [], failStatus, configured = true, diskConfigured = configured } = {}) {
   let db = copy(local), serial = 0;
   const storage = { 'fmgDrive.enabled': true, ...(base ? { 'fmgDrive.base': { id: base.id, data: copy(base.data) } } : {}) };
   const cloud = remote.map(f => ({ id: f.id, parents: f.parents || [], data: copy(f.data), createdTime: f.createdTime || '2026-10-27T00:00:00Z' }));
@@ -37,6 +37,7 @@ function harness({ local = data(), base, remote = [], failStatus, configured = t
     setTimeout(fn, ms) { const id = setTimeout(fn, ms); timers.add(id); return id; },
     clearTimeout(id) { clearTimeout(id); timers.delete(id); },
     fetch: async (url, options = {}) => {
+      if (url.startsWith('chrome-extension://')) return Response.json(diskConfigured ? { oauth2: { client_id: 'test.apps.googleusercontent.com' } } : {});
       requests.push({ url, options });
       if (failStatus) return new Response('', { status: failStatus });
       const parsed = new URL(url);
@@ -96,6 +97,18 @@ test('three-way decisions preserve deletions and detect independent edits', () =
   assert.equal(C.decide(a, data(), a), 'download');
   assert.equal(C.decide(data(), a, null), 'download');
   assert.equal(C.decide(b, a, null), 'conflict');
+});
+
+test('OAuth status distinguishes a saved manifest from configuration loaded by Chrome', async () => {
+  for (const [configured, diskConfigured, reloadNeeded] of [[false, true, true], [true, true, false], [false, false, false]]) {
+    const h = harness({ configured, diskConfigured });
+    try {
+      const status = (await h.ui('status')).data;
+      assert.equal(status.configured, configured);
+      assert.equal(status.oauthReloadNeeded, reloadNeeded);
+      assert.equal(h.requests.length, 0);
+    } finally { h.close(); }
+  }
 });
 test('row and object ordering does not cause a false conflict', () => {
   assert.equal(C.equal(data([2, 1]), data([1, 2])), true);

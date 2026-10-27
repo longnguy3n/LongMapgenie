@@ -14,6 +14,9 @@ function render() {
   $('extension-id').textContent = current.extensionId;
   $('badge').textContent = labels[state] || state;
   $('status').textContent = current.status?.message || (current.configured ? 'Sẵn sàng kết nối Google Drive.' : 'Chưa cấu hình OAuth Client ID. Làm theo các bước bên dưới.');
+  $('oauth-status').textContent = current.oauthReloadNeeded ? 'Client ID đã được lưu vào file, nhưng Chrome chưa nạp cấu hình mới. Bấm Nạp lại extension bên dưới.' : current.configured ? 'Chrome đã nhận cấu hình OAuth Client ID.' : 'Chrome chưa có OAuth Client ID. Nếu đã chạy lệnh cấu hình, hãy kiểm tra đúng thư mục Load unpacked và nhấn Reload tại chrome://extensions.';
+  $('reload-extension').hidden = !current.oauthReloadNeeded;
+  if (current.configured && !current.enabled && current.status?.message?.startsWith('Chưa cấu hình OAuth Client ID')) $('status').textContent = 'Sẵn sàng kết nối Google Drive.';
   $('last-success').textContent = current.lastSuccess ? 'Lần thành công gần nhất: ' + new Date(current.lastSuccess).toLocaleString('vi-VN') : 'Chưa có lần đồng bộ thành công.';
   $('reload').hidden = !current.reloadNeeded;
   for (const button of document.querySelectorAll('button:not([data-update-action])')) button.disabled = busy || state === 'syncing';
@@ -47,6 +50,7 @@ function download(data, label) {
   a.click(); setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 for (const action of ['connect', 'disconnect', 'sync', 'acknowledge']) $(action).addEventListener('click', () => run(() => call(action)));
+$('reload-extension').addEventListener('click', () => run(() => call('reload-extension')));
 for (const action of ['export', 'recovery']) $(action).addEventListener('click', () => run(async () => download((await call(action)).data, action)));
 $('restore').addEventListener('click', () => $('restore-file').click());
 $('restore-file').addEventListener('change', event => {

@@ -32,6 +32,7 @@ function Fixture {
 function Pack($F) { [IO.Compression.ZipFile]::CreateFromDirectory($F.Source,$F.Zip); return (Get-FileHash -LiteralPath $F.Zip).Hash }
 RunTest 'verified package swaps directory, preserves OAuth, retains backup and writes ready marker' {
     $f = Fixture; $hash = Pack $f
+    Write-LMGJson (Join-Path $f.Root 'lmg-update-status.json') @{ nativeHost='com.longmapgine.updater.f0123456789abcdef'; state='installed' }
     $result = Install-LMGPackage $f.Root $f.Zip $hash '1.1.0'
     $m = Get-Content -LiteralPath (Join-Path $f.Root 'manifest.json') -Raw | ConvertFrom-Json
     Assert ($m.version -eq '1.1.0') 'Version not updated.'
@@ -39,6 +40,7 @@ RunTest 'verified package swaps directory, preserves OAuth, retains backup and w
     Assert (Test-Path -LiteralPath (Join-Path $result.Backup 'manifest.json')) 'Backup missing.'
     $marker = Get-Content -LiteralPath (Join-Path $f.Root 'lmg-update-status.json') -Raw | ConvertFrom-Json
     Assert ($marker.state -eq 'ready') 'No ready marker.'
+    Assert ($marker.nativeHost -eq 'com.longmapgine.updater.f0123456789abcdef') 'Manual updater host was lost.'
 }
 RunTest 'bad SHA-256 leaves installed manifest untouched' {
     $f = Fixture; $null = Pack $f

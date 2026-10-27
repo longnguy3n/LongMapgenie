@@ -18,7 +18,7 @@ try {
         $existing = Get-Content -LiteralPath (Join-Path $root 'lmg-update-status.json') -Raw -ErrorAction SilentlyContinue | ConvertFrom-Json
         # Do not erase a ready marker before a running browser has reloaded the new files.
         if ((Get-LMGProperty $existing 'state') -ne 'ready') {
-            Write-LMGJson (Join-Path $root 'lmg-update-status.json') @{ state='installed'; version=$manifest.version; checkedAt=[DateTime]::UtcNow.ToString('o'); message='Latest version is installed.' }
+            Write-LMGJson (Join-Path $root 'lmg-update-status.json') @{ state='installed'; version=$manifest.version; checkedAt=[DateTime]::UtcNow.ToString('o'); message='Latest version is installed.'; nativeHost=(Get-LMGProperty $existing 'nativeHost') }
         }
         exit 0
     }
@@ -31,7 +31,7 @@ try {
     Write-LMGJson (Join-Path $state 'last-result.json') @{ state='ready'; version=$result.Version; backup=$result.Backup; time=[DateTime]::UtcNow.ToString('o') }
     # Future helper improvements are taken from the already verified package.
     if ((Resolve-Path -LiteralPath $PSScriptRoot).Path -eq $state) {
-        foreach ($file in @('Core.ps1','Update-LMG.ps1')) {
+        foreach ($file in @('Core.ps1','Update-LMG.ps1','NativeHost.ps1')) {
             $source = Join-Path $root ('updater\' + $file)
             if (Test-Path -LiteralPath $source) { Copy-Item -LiteralPath $source -Destination (Join-Path $state $file) -Force }
         }
@@ -39,7 +39,10 @@ try {
 } catch {
     $message = $_.Exception.Message
     if ($root -and (Test-Path -LiteralPath $root)) {
-        try { Write-LMGJson (Join-Path $root 'lmg-update-status.json') @{ state='error'; message=$message; time=[DateTime]::UtcNow.ToString('o') } } catch {}
+        try {
+            $existing = Get-Content -LiteralPath (Join-Path $root 'lmg-update-status.json') -Raw | ConvertFrom-Json
+            Write-LMGJson (Join-Path $root 'lmg-update-status.json') @{ state='error'; message=$message; time=[DateTime]::UtcNow.ToString('o'); nativeHost=(Get-LMGProperty $existing 'nativeHost') }
+        } catch {}
     }
     Write-Error $message
     exit 1

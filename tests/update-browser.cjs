@@ -13,6 +13,7 @@ const items = ['manifest.json','background.js','page.js','popup.html','dataManag
 fs.mkdirSync(installed); fs.mkdirSync(stage);
 for (const item of items) { fs.cpSync(path.join(project, item), path.join(installed, item), { recursive: true }); fs.cpSync(path.join(project, item), path.join(stage, item), { recursive: true }); }
 const old = JSON.parse(fs.readFileSync(path.join(installed, 'manifest.json')));
+old.permissions = old.permissions.filter(permission => permission !== 'nativeMessaging');
 old.oauth2 = { client_id: 'test-only.apps.googleusercontent.com', scopes: ['https://www.googleapis.com/auth/drive.appdata'] };
 fs.writeFileSync(path.join(installed, 'manifest.json'), JSON.stringify(old));
 const targetVersion = old.version.split('.').map((part, i) => i === 2 ? String(Number(part) + 1) : part).join('.');

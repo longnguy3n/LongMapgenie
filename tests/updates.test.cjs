@@ -14,12 +14,13 @@ function event() {
   const listeners = [];
   return { listeners, addListener(fn) { listeners.push(fn); }, fire(...args) { listeners.forEach(fn => fn(...args)); } };
 }
-function harness({ response = release(), httpStatus = 200, marker = { state: 'not-installed' }, disk = { name: 'LMG', version: '1.2.0', key: 'key' }, busy = false } = {}) {
-  const storage = {}, alarms = [], badges = [];
+function harness({ response = release(), httpStatus = 200, marker = { state: 'not-installed' }, disk = { name: 'LMG', version: '1.2.0', key: 'key' }, busy = false, nativeReply } = {}) {
+  const storage = {}, alarms = [], badges = [], nativeCalls = [];
   let requests = 0, reloads = 0, flushes = 0;
   const chrome = {
     runtime: { id: 'test', getManifest: () => ({ name: 'LMG', version: '1.1.0', key: 'key' }), getURL: p => 'chrome-extension://test/' + p,
-      onInstalled: event(), onStartup: event(), onMessage: event(), reload() { reloads++; } },
+      onInstalled: event(), onStartup: event(), onMessage: event(), reload() { reloads++; },
+      async sendNativeMessage(host, message) { nativeCalls.push({ host, message }); return nativeReply(message); } },
     storage: { local: { async get(key) { return { [key]: storage[key] }; }, async set(data) { Object.assign(storage, data); } } },
     alarms: { onAlarm: event(), async get() {}, async create(name, options) { alarms.push({ name, ...options }); } },
     action: { async setBadgeText(value) { badges.push(value.text); }, async setBadgeBackgroundColor() {} }
@@ -33,7 +34,7 @@ function harness({ response = release(), httpStatus = 200, marker = { state: 'no
   });
   context.importScripts = () => vm.runInContext(fs.readFileSync(path.join(root, 'updates/core.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root, 'updates/worker.js'), 'utf8'), context);
-  return { storage, alarms, badges, chrome, get requests() { return requests; }, get reloads() { return reloads; }, get flushes() { return flushes; },
+  return { storage, alarms, badges, chrome, nativeCalls, get requests() { return requests; }, get reloads() { return reloads; }, get flushes() { return flushes; },
     async call(action, extra = {}, sender = { id: 'test', url: 'chrome-extension://test/drive-sync/settings.html' }) {
       return await new Promise(resolve => chrome.runtime.onMessage.listeners[0]({ type: 'LMG_UPDATES_V1', action, ...extra }, sender, resolve));
     }
@@ -95,4 +96,39 @@ test('legacy popup no longer makes an unauthenticated request with an error toas
   const popup = fs.readFileSync(path.join(root, 'chunks/popup-DkXAhNd0.js'), 'utf8');
   assert.ok(popup.includes('type:"LMG_UPDATES_V1",action:"check"'));
   assert.ok(!popup.includes('Failed to fetch latest version'));
+});
+
+test('update now starts the installed helper once, tracks completion and does not wait for the schedule', async () => {
+  let running = true;
+  const startedAt = new Date().toISOString();
+  const h = harness({ marker: { nativeHost: 'com.longmapgine.updater.f0123456789abcdef' },
+    nativeReply: message => message.action === 'update' ? { started: true, startedAt } : { running, lastRunAt: startedAt, exitCode: 0 } });
+  const results = await Promise.all([h.call('update-now'), h.call('update-now')]);
+  assert.ok(results.every(result => result.data.state === 'running'));
+  assert.equal(h.nativeCalls.filter(call => call.message.action === 'update').length, 1);
+  assert.equal((await h.call('status')).data.manual.state, 'running');
+  running = false;
+  assert.equal((await h.call('status')).data.manual.state, 'done');
+});
+
+test('manual updates require an installed host, private settings page and idle Drive sync', async () => {
+  for (const options of [{}, { marker: { nativeHost: 'unexpected.host' } }, { marker: { nativeHost: 'com.longmapgine.updater.f0123456789abcdef' }, busy: true }]) {
+    const h = harness(options);
+    assert.ok((await h.call('update-now')).error);
+    assert.equal(h.nativeCalls.length, 0);
+  }
+  const h = harness();
+  for (const url of ['https://mapgenie.io/', 'chrome-extension://test/popup.html']) {
+    assert.ok((await h.call('update-now', {}, { id: 'test', url })).error);
+  }
+});
+
+test('missing native registration and failed scheduled task return actionable errors', async () => {
+  const marker = { nativeHost: 'com.longmapgine.updater.f0123456789abcdef' };
+  const absent = harness({ marker, nativeReply() { throw new Error('host missing'); } });
+  assert.match((await absent.call('update-now')).error, /Install-LMG-Updater/);
+  const startedAt = new Date().toISOString();
+  const failed = harness({ marker, nativeReply: message => message.action === 'update' ? { started: true, startedAt } : { running: false, lastRunAt: startedAt, exitCode: 1 } });
+  await failed.call('update-now');
+  assert.equal((await failed.call('status')).data.manual.state, 'error');
 });

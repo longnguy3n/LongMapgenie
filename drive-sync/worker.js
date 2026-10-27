@@ -12,6 +12,13 @@ importScripts('core.js');
   const status = async (state, message, extra = {}) => set('status', { state, message, time: Date.now(), ...extra });
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
   function configured() { return Boolean(chrome.runtime.getManifest().oauth2?.client_id); }
+  async function oauthReloadNeeded() {
+    try {
+      const response = await fetch(chrome.runtime.getURL('manifest.json') + '?t=' + Date.now(), { cache: 'no-store' });
+      const disk = await response.json();
+      return Boolean(disk.oauth2?.client_id && disk.oauth2.client_id !== chrome.runtime.getManifest().oauth2?.client_id);
+    } catch { return false; }
+  }
   async function token(interactive = false) {
     if (!configured()) throw new Error('Chưa cấu hình OAuth Client ID. Xem hướng dẫn bên dưới.');
     const result = await chrome.identity.getAuthToken({ interactive, scopes: [SCOPE] });
@@ -217,7 +224,12 @@ importScripts('core.js');
     if (sender.id !== chrome.runtime.id || sender.url !== chrome.runtime.getURL('drive-sync/settings.html')) { respond({ error: 'Không được phép.' }); return; }
     (async () => {
       switch (message.action) {
-        case 'status': return { configured: configured(), extensionId: chrome.runtime.id, enabled: !!await get('enabled'), status: await get('status'), lastSuccess: await get('lastSuccess'), reloadNeeded: !!await get('reloadNeeded') };
+        case 'status': return { configured: configured(), oauthReloadNeeded: await oauthReloadNeeded(), extensionId: chrome.runtime.id, enabled: !!await get('enabled'), status: await get('status'), lastSuccess: await get('lastSuccess'), reloadNeeded: !!await get('reloadNeeded') };
+        case 'reload-extension':
+          if (running) throw new Error('Hãy chờ đồng bộ hoàn tất trước khi nạp lại extension.');
+          if (!await globalThis.LMGUpdateGate.prepare()) throw new Error('Chưa thể nạp lại extension. Hãy thử lại.');
+          setTimeout(() => chrome.runtime.reload(), 250);
+          return {};
         case 'connect':
           await token(true); await set('enabled', true); await sync(); return {};
         case 'disconnect':

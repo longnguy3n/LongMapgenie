@@ -14,5 +14,7 @@ if (!clientId) {
   if (!/^[A-Za-z0-9_-]+\.apps\.googleusercontent\.com$/.test(clientId)) throw new Error('OAuth Client ID khong hop le.');
   manifest.oauth2 = { client_id: clientId, scopes: ['https://www.googleapis.com/auth/drive.appdata'] };
   fs.writeFileSync(file, JSON.stringify(manifest, null, 2) + '\n');
-  console.log('Da luu Client ID. Reload extension trong Chrome.');
+  console.log('Da luu Client ID vao:', file);
+  console.log('Mo chrome://extensions > LMG > Reload (mui ten vong tron), sau do mo lai trang dong bo. F5 trang web khong nap lai cau hinh extension.');
+  console.log('Chrome phai Load unpacked tu dung thu muc:', __dirname);
 }

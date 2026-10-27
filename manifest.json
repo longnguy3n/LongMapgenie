@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "LMG",
   "description": "LongMapgine: MapGenie enhancements with optional Google Drive progress sync.",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "icons": {
     "16": "icon/16.png",
     "32": "icon/32.png",
@@ -41,7 +41,8 @@
     "storage",
     "identity",
     "alarms",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "nativeMessaging"
   ],
   "background": {
     "service_worker": "drive-sync/entry.js"

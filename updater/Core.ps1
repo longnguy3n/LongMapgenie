@@ -125,7 +125,9 @@ function Install-LMGPackage([string]$Root, [string]$ZipPath, [string]$Checksum, 
     foreach ($path in @($stage, $backup)) {
         if (![IO.Path]::GetFullPath($path).StartsWith($work + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Invalid move target.' }
     }
-    $marker = @{ state = 'installing'; id = $nonce; version = $Version; time = [DateTime]::UtcNow.ToString('o') }
+    $previousMarker = $null
+    if (Test-Path -LiteralPath (Join-Path $root 'lmg-update-status.json')) { $previousMarker = Get-Content -LiteralPath (Join-Path $root 'lmg-update-status.json') -Raw | ConvertFrom-Json }
+    $marker = @{ state = 'installing'; id = $nonce; version = $Version; time = [DateTime]::UtcNow.ToString('o'); nativeHost=(Get-LMGProperty $previousMarker 'nativeHost') }
     Write-LMGJson (Join-Path $root 'lmg-update-status.json') $marker
     $moved = $false
     try {

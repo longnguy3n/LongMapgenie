@@ -6,7 +6,7 @@ LMG is based on the supplied FMG 3.0.12 Chrome bundle. It adds a separate Drive 
 
 ## Install
 
-1. Download `LMG-1.1.2-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgine/releases/latest) and extract it.
+1. Download `LMG-1.2.0-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgine/releases/latest) and extract it.
 2. If you already use FMG, export your existing saves with **Export all games**, then disable that extension.
 3. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 4. Select the extracted folder containing `manifest.json`.
@@ -129,3 +129,15 @@ Internal `fmg:*` database names, `FMG_DRIVE_*` messages and snapshot formats are
 Original FMG project: [V1P3R-FMG/free-map-genie](https://github.com/V1P3R-FMG/free-map-genie), by V1P3R and its contributors. LMG branding and the Drive integration are maintained in [longnguy3n/LongMapgine](https://github.com/longnguy3n/LongMapgine). See [third-party notices](THIRD-PARTY-NOTICES.md).
 
 Official API references: [Chrome OAuth](https://developer.chrome.com/docs/extensions/how-to/integrate/oauth), [Drive application data](https://developers.google.com/workspace/drive/api/guides/appdata), [Drive uploads](https://developers.google.com/workspace/drive/api/guides/manage-uploads).
+
+### Update immediately (v1.2.0)
+
+Run the new **Install-LMG-Updater.cmd** once and select the extracted runtime folder. This also registers a per-user native messaging host restricted to LMG. In LMG settings, **Cập nhật ngay** starts the Windows updater task immediately and reports completion or failure. **Kiểm tra phiên bản** only checks GitHub metadata. The six-hour schedule remains available. Existing updater users must run the new installer once to enable the button; uninstall removes both the selected task and its native host registrations.
+
+Use a runtime folder rather than the repository checkout: the installer rejects folders containing `.git`. Google Chrome and Chromium are registered; no administrator privileges or Node.js are needed for the updater. Native messaging follows the [Chrome native messaging interface](https://developer.chrome.com/docs/extensions/develop/concepts/native-messaging).
+
+### OAuth saved but not loaded
+
+`configure-drive.cjs` now prints the exact manifest path it changed. LMG settings compare the saved manifest with Chrome's loaded configuration and show **Nạp lại extension để nhận OAuth** when a reload is needed. Reloading the web page alone does not reload the extension manifest. The reload button waits for active Drive work to finish and flushes the database before reloading. Live Google OAuth authorization still requires your own correctly configured Google Cloud client.
+
+Verification for v1.2.0: JavaScript tests cover manual-update completion, missing registration, failed tasks, concurrent clicks, sender restrictions and OAuth detection. Windows tests preserve the native host marker across folder replacement. An isolated Chromium test installs a temporary native host and Windows task, clicks the actual Update now button, verifies immediate task execution, and removes the test registrations. It also changes OAuth on disk and verifies that extension reload enables Connect. Separate browser tests cover popup clicks, database restore/persistence and automatic reload when adding the nativeMessaging permission.
