@@ -24,9 +24,7 @@ try {
     }
     $download = Join-Path $state ([guid]::NewGuid().ToString('N') + '.zip')
     $checksumText = (Invoke-WebRequest -UseBasicParsing -Uri $release.ChecksumUrl -Headers $headers -TimeoutSec 60).Content
-    $pattern = '^([a-fA-F0-9]{64})\s+\*?' + [regex]::Escape($release.Name) + '\s*$'
-    if ($checksumText -notmatch $pattern) { throw 'Invalid release checksum file.' }
-    $checksum = $Matches[1]
+    $checksum = Read-LMGChecksum $checksumText $release.Name
     if ($release.Digest -and $release.Digest -ine ('sha256:' + $checksum)) { throw 'GitHub asset digest differs from checksum file.' }
     Invoke-WebRequest -UseBasicParsing -Uri $release.Url -Headers $headers -TimeoutSec 180 -OutFile $download
     $result = Install-LMGPackage $root $download $checksum $release.Version

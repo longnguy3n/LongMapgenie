@@ -59,6 +59,14 @@ function Get-LMGRelease($Release) {
     if ($zip[0].size -gt 52428800) { throw 'Release package exceeds the 50 MiB limit.' }
     return [pscustomobject]@{ Version = $version; Name = $name; Url = $zip[0].browser_download_url; ChecksumUrl = $checksum[0].browser_download_url; Digest = (Get-LMGProperty $zip[0] 'digest' '') }
 }
+function Read-LMGChecksum($Content, [string]$Name) {
+    if ($Content -is [byte[]]) { $text = [Text.Encoding]::UTF8.GetString($Content) }
+    else { $text = [string]$Content }
+    $text = $text.Trim().TrimStart([char]0xFEFF)
+    $pattern = '^([a-fA-F0-9]{64})\s+\*?' + [regex]::Escape($Name) + '\s*$'
+    if ($text -notmatch $pattern) { throw 'Invalid release checksum file.' }
+    return $Matches[1]
+}
 function Expand-LMGPackage([string]$ZipPath, [string]$Stage) {
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $prefix = [IO.Path]::GetFullPath($Stage).TrimEnd('\') + '\'

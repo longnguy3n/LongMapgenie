@@ -15,10 +15,11 @@ for (const item of items) { fs.cpSync(path.join(project, item), path.join(instal
 const old = JSON.parse(fs.readFileSync(path.join(installed, 'manifest.json')));
 old.oauth2 = { client_id: 'test-only.apps.googleusercontent.com', scopes: ['https://www.googleapis.com/auth/drive.appdata'] };
 fs.writeFileSync(path.join(installed, 'manifest.json'), JSON.stringify(old));
-const next = JSON.parse(fs.readFileSync(path.join(stage, 'manifest.json'))); next.version = '1.1.1';
+const targetVersion = old.version.split('.').map((part, i) => i === 2 ? String(Number(part) + 1) : part).join('.');
+const next = JSON.parse(fs.readFileSync(path.join(stage, 'manifest.json'))); next.version = targetVersion;
 fs.writeFileSync(path.join(stage, 'manifest.json'), JSON.stringify(next));
 function fixture(mode) {
-  return execFileSync('powershell.exe', ['-NoProfile','-ExecutionPolicy','Bypass','-File',path.join(__dirname, 'update-fixture.ps1'),'-Project',project,'-Root',installed,'-Stage',stage,'-Zip',zip,'-Mode',mode], { encoding: 'utf8' });
+  return execFileSync('powershell.exe', ['-NoProfile','-ExecutionPolicy','Bypass','-File',path.join(__dirname, 'update-fixture.ps1'),'-Project',project,'-Root',installed,'-Stage',stage,'-Zip',zip,'-Version',targetVersion,'-Mode',mode], { encoding: 'utf8' });
 }
 fixture('pack');
 (async () => {
@@ -45,7 +46,7 @@ fixture('pack');
     exported.data.data.tables.locations_v2.push({ id: 987, game_id: 1, user_id: 10 });
     assert.equal((await call('restore', { data: exported.data.data })).error, undefined);
     const result = JSON.parse(fixture('install'));
-    assert.equal(result.Version, '1.1.1');
+    assert.equal(result.Version, targetVersion);
     const closed = page.waitForEvent('close', { timeout: 30000 });
     await page.evaluate(() => chrome.runtime.sendMessage({ type: 'LMG_UPDATES_V1', action: 'apply' })).catch(() => {});
     await closed;
@@ -60,12 +61,12 @@ fixture('pack');
       console.log('Reload diagnostics:', await page.evaluate(() => new Promise(resolve => chrome.developerPrivate.getExtensionsInfo({ includeDisabled: true, includeTerminated: true }, items => resolve(items.map(item => ({ id: item.id, state: item.state, disableReasons: item.disableReasons, manifestErrors: item.manifestErrors })))))));
       throw new Error('Updated extension did not become available.');
     }
-    assert.equal(await page.evaluate(() => chrome.runtime.getManifest().version), '1.1.1');
+    assert.equal(await page.evaluate(() => chrome.runtime.getManifest().version), targetVersion);
     assert.equal(await page.evaluate(() => chrome.runtime.getManifest().oauth2.client_id), 'test-only.apps.googleusercontent.com');
     await page.waitForFunction(() => document.getElementById('extension-id').textContent.length === 32);
     const after = await call('export');
     assert.equal(after.data.data.tables.locations_v2[0].id, 987);
-    assert.equal(JSON.parse(fs.readFileSync(path.join(result.Backup, 'manifest.json'))).version, '1.1.0');
-    console.log('PASS: verified native folder swap with Chromium running; extension automatically reloaded to 1.1.1; OAuth, extension ID and real IndexedDB survived.');
+    assert.equal(JSON.parse(fs.readFileSync(path.join(result.Backup, 'manifest.json'))).version, old.version);
+    console.log('PASS: verified native folder swap with Chromium running; extension automatically reloaded to ' + targetVersion + '; OAuth, extension ID and real IndexedDB survived.');
   } finally { await context.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

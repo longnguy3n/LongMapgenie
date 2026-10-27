@@ -6,7 +6,7 @@ LMG is based on the supplied FMG 3.0.12 Chrome bundle. It adds a separate Drive 
 
 ## Install
 
-1. Download `LMG-1.1.0-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgine/releases/latest) and extract it.
+1. Download `LMG-1.1.1-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgine/releases/latest) and extract it.
 2. If you already use FMG, export your existing saves with **Export all games**, then disable that extension.
 3. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 4. Select the extracted folder containing `manifest.json`.
@@ -85,7 +85,7 @@ npm run test:browser
 
 The browser suite uses an isolated temporary profile and intercepted website responses. It tests the real extension worker, offscreen iframe, Dexie/IndexedDB reads and writes, restore validation, recovery, persistence, and settings layout. It does not log in to Google. `CHROMIUM_PATH` and `PLAYWRIGHT_MODULE` can override the browser executable and Playwright module location.
 
-Version 1.1.0 passed 22 JavaScript tests, nine Windows updater tests, the original Chromium integration suite, and a real folder-swap/reload test with Chromium running. The reload test verified that OAuth configuration, extension ID and IndexedDB data survived the update. Tests use isolated folders and do not register a persistent task for the user's real extension.
+Version 1.1.1 passed 22 JavaScript tests, ten Windows updater tests, the original Chromium integration suite, and a real folder-swap/reload test with Chromium running. The reload test verified that OAuth configuration, extension ID and IndexedDB data survived the update. The updater was also tested against a real public GitHub release download, including its binary checksum response. Tests use isolated folders and do not register a persistent task for the user's real extension.
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/updater.ps1

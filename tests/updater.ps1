@@ -92,6 +92,13 @@ RunTest 'release metadata rejects other repositories and prereleases' {
     $r.prerelease = $true
     ExpectFailure { Get-LMGRelease $r } 'stable'
 }
+RunTest 'GitHub checksum downloads accept binary or text bodies and reject wrong filenames' {
+    $hash = 'a' * 64
+    $text = $hash + '  LMG-1.1.1-chrome.zip' + "`n"
+    Assert ((Read-LMGChecksum $text 'LMG-1.1.1-chrome.zip') -eq $hash) 'Text checksum failed.'
+    Assert ((Read-LMGChecksum ([Text.Encoding]::UTF8.GetBytes($text)) 'LMG-1.1.1-chrome.zip') -eq $hash) 'Binary checksum failed.'
+    ExpectFailure { Read-LMGChecksum $text 'other.zip' } 'Invalid release checksum'
+}
 RunTest 'installer can describe the selected folder without registering a task' {
     $f = Fixture
     $output = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot '..\updater\Install-LMGUpdater.ps1') -ExtensionDirectory $f.Root -DescribeOnly

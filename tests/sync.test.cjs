@@ -202,7 +202,7 @@ test('restore validates first, pauses sync, saves recovery, and restores every t
 test('manifest hooks and private sync resources are wired correctly', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json')));
   assert.equal(manifest.name, 'LMG');
-  assert.equal(manifest.version, '1.1.0');
+  assert.equal(manifest.version, JSON.parse(fs.readFileSync(path.join(root, 'package.json'))).version);
   assert.equal(manifest.homepage_url, 'https://github.com/longnguy3n/LongMapgine');
   assert.ok(manifest.permissions.includes('identity'));
   assert.ok(manifest.permissions.includes('alarms'));
