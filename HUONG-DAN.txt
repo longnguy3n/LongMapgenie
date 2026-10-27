@@ -1,4 +1,4 @@
-LMG 1.1.1 — LONGMAPGINE + GOOGLE DRIVE + TỰ CẬP NHẬT
+LMG 1.1.2 — LONGMAPGINE + GOOGLE DRIVE + TỰ CẬP NHẬT
 
 Repository: https://github.com/longnguy3n/LongMapgine
 Tải bản cài: https://github.com/longnguy3n/LongMapgine/releases/latest
@@ -7,7 +7,7 @@ Extension ID: okoelmnpaigkpbnooodiafamdbikbian
 1. SAO LƯU VÀ CÀI BẢN SỬA
 
 - Trong FMG hoặc bản LMG trước, dùng Export all games để tải bản sao JSON.
-- Giải nén LMG-1.1.1-chrome.zip vào một thư mục cố định.
+- Giải nén LMG-1.1.2-chrome.zip vào một thư mục cố định.
 - Mở chrome://extensions, tắt bản cũ. Không chạy hai bản cùng lúc.
 - Bật Developer mode, chọn Load unpacked, chọn thư mục vừa giải nén có manifest.json.
 - Mở popup LMG, bấm “Đồng bộ Google Drive”. Có thể vào Details > Extension options.

@@ -6,7 +6,7 @@ LMG is based on the supplied FMG 3.0.12 Chrome bundle. It adds a separate Drive 
 
 ## Install
 
-1. Download `LMG-1.1.1-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgine/releases/latest) and extract it.
+1. Download `LMG-1.1.2-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgine/releases/latest) and extract it.
 2. If you already use FMG, export your existing saves with **Export all games**, then disable that extension.
 3. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 4. Select the extracted folder containing `manifest.json`.
