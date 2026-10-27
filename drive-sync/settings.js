@@ -16,7 +16,7 @@ function render() {
   $('status').textContent = current.status?.message || (current.configured ? 'Sẵn sàng kết nối Google Drive.' : 'Chưa cấu hình OAuth Client ID. Làm theo các bước bên dưới.');
   $('last-success').textContent = current.lastSuccess ? 'Lần thành công gần nhất: ' + new Date(current.lastSuccess).toLocaleString('vi-VN') : 'Chưa có lần đồng bộ thành công.';
   $('reload').hidden = !current.reloadNeeded;
-  for (const button of document.querySelectorAll('button')) button.disabled = busy || state === 'syncing';
+  for (const button of document.querySelectorAll('button:not([data-update-action])')) button.disabled = busy || state === 'syncing';
   $('connect').disabled = busy || current.enabled || !current.configured;
   $('sync').disabled = busy || !current.enabled || state === 'syncing';
   $('disconnect').disabled = busy || !current.enabled || state === 'syncing';

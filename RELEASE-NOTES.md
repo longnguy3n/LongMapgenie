@@ -1,26 +1,23 @@
-First release of **LMG (LongMapgine)**, based on the FMG 3.0.12 Chrome bundle.
+LMG v1.1.0 adds automatic updates for the Windows Load unpacked installation.
 
-- LMG name, SVG logo and Chrome icons; version and update links now point to LongMapgine.
-- Optional Google Drive synchronization for progress, tracked categories, notes, presets, bookmarks and profiles.
-- Local offline storage, conflict detection between devices, and recovery backups before remote replacement.
-- Vietnamese setup page and OAuth configuration guide.
-- Preserved internal storage keys and formats for compatibility with the preceding build.
+- The GitHub repository and releases are now public.
+- Background release checks every six hours, a NEW badge, and update status in settings.
+- Removed the red “Failed to fetch latest version” popup on GitHub/network errors.
+- Windows updater with a folder chooser: run **Install-LMG-Updater.cmd** and select the folder actually loaded in Chrome.
+- A hidden task runs for the current Windows user, first after about one minute and then every six hours. No elevated run level or Node.js is required.
+- Verified release URLs, SHA-256 and asset digests, extension identity checks, safe ZIP extraction, OAuth preservation, folder backups and rollback on install failure.
+- Automatic extension reload after successful installation; uninstall script removes the scheduled task.
 
-### Install
+### First-time setup
 
-Download **LMG-1.0.0-chrome.zip**, extract it, then use **chrome://extensions → Developer mode → Load unpacked**. Export existing FMG data before switching and disable the old extension.
+Download and extract **LMG-1.1.0-chrome.zip**. Run **Install-LMG-Updater.cmd**, choose the installed extension folder and close the installer. Keep Chrome Developer mode enabled. Use an extracted runtime folder, not a Git checkout.
 
-### Google Drive configuration
+The initial move from v1.0.0 needs one manual Reload in chrome://extensions because v1.0.0 has no automatic reload listener. From v1.1.0 onward, the helper and extension handle installation/reload. Reload open MapGenie tabs to activate updated page scripts.
 
-Google Drive is optional and **requires your own Chrome Extension OAuth Client ID**. No Client ID is bundled. Follow `HUONG-DAN.txt` or the README, then reload the extension and connect from its Drive settings page.
+Google Drive still requires your OAuth Client ID. The updater preserves an already configured oauth2 section. See HUONG-DAN.txt and the README for setup and recovery.
 
-Extension ID: `okoelmnpaigkpbnooodiafamdbikbian`.
+### Verification
 
-### Verification and known limits
+Passed 22 JavaScript tests, nine Windows updater tests, the original Chromium integration suite, and a live native-folder-swap test with Chromium running. That test confirmed automatic reload while retaining the extension ID, OAuth configuration and real IndexedDB data. All tests use isolated folders/profiles; no background task was installed for your real extension.
 
-- Passed 14 logic tests and an isolated Chromium integration test covering the extension worker, offscreen backend, real IndexedDB, backup/restore, persistence and settings layout.
-- Live Google login and real Drive transfers have not been tested without a configured OAuth client.
-- Simultaneous independent changes require choosing an entire local or remote database; automatic record merging is not included.
-- Reload open MapGenie tabs after downloading changes.
-
-The `.sha256` attachment contains the ZIP's SHA-256 checksum. Upstream FMG credit is retained in the repository.
+Google OAuth sign-in and real Drive transfers remain unverified without a configured client. The .sha256 attachment contains the ZIP checksum.

@@ -15,7 +15,7 @@ replaceOnce('popup.html', '<div id="root"></div>', '<div id="root"></div>\n    <
 const manifestPath = path.join(root, 'manifest.json');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 manifest.name = 'LMG';
-manifest.version = '1.0.0';
+manifest.version = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).version;
 manifest.description = 'MapGenie enhancements with optional Google Drive progress sync.';
 manifest.permissions = [...new Set([...manifest.permissions, 'identity', 'alarms', 'unlimitedStorage'])];
 manifest.host_permissions = [...new Set([...manifest.host_permissions, 'https://www.googleapis.com/*'])];

@@ -1,4 +1,4 @@
-LMG 1.0.0 — LONGMAPGINE + GOOGLE DRIVE
+LMG 1.1.0 — LONGMAPGINE + GOOGLE DRIVE + TỰ CẬP NHẬT
 
 Repository: https://github.com/longnguy3n/LongMapgine
 Tải bản cài: https://github.com/longnguy3n/LongMapgine/releases/latest
@@ -7,7 +7,7 @@ Extension ID: okoelmnpaigkpbnooodiafamdbikbian
 1. SAO LƯU VÀ CÀI BẢN SỬA
 
 - Trong FMG hoặc bản LMG trước, dùng Export all games để tải bản sao JSON.
-- Giải nén LMG-1.0.0-chrome.zip vào một thư mục cố định.
+- Giải nén LMG-1.1.0-chrome.zip vào một thư mục cố định.
 - Mở chrome://extensions, tắt bản cũ. Không chạy hai bản cùng lúc.
 - Bật Developer mode, chọn Load unpacked, chọn thư mục vừa giải nén có manifest.json.
 - Mở popup LMG, bấm “Đồng bộ Google Drive”. Có thể vào Details > Extension options.
@@ -112,6 +112,32 @@ Trình duyệt test có thể cấu hình qua CHROMIUM_PATH và PLAYWRIGHT_MODUL
 Các file mới nằm trong drive-sync/. Bundle gốc chỉ có hai điểm nối: khởi tạo
 database adapter trong backend.js và tách port Drive khỏi bus LMG trong background.js.
 Popup được thêm nút mở trang Drive; manifest khai báo worker mới, quyền và options.
+
+8. CẬP NHẬT TỰ ĐỘNG TRÊN WINDOWS
+
+- Chạy Install-LMG-Updater.cmd. Cửa sổ chọn thư mục sẽ hiện ra.
+- Chọn đúng thư mục LMG mà bạn đã chọn trong Load unpacked, có manifest.json.
+  Dùng thư mục bản ZIP đã giải nén; không chọn Git source checkout có thư mục .git.
+- Đóng cửa sổ cài đặt sau khi hoàn tất. Updater chạy nền lần đầu sau khoảng một
+  phút, sau đó mỗi 6 giờ khi bạn đăng nhập Windows. Không cần Node.js để cập nhật.
+- Giữ Developer mode trong Chrome ở trạng thái bật.
+- Updater tải ZIP từ release chính thức, kiểm tra SHA-256, Extension ID và phiên
+  bản; giữ cấu hình OAuth. Thư mục cũ được giữ ở .lmg-updates-* bên cạnh thư mục LMG.
+- Cài xong, extension tự nạp lại trong khoảng một phút nếu Drive không đang đồng
+  bộ. Tải lại các tab MapGenie đang mở để dùng mã mới trên trang.
+- Lần đầu nâng từ v1.0.0 lên v1.1.0 cần nhấn Reload trong chrome://extensions
+  một lần, vì v1.0.0 chưa có bộ lắng nghe cập nhật. Các lần sau dùng cơ chế mới.
+- Updater chỉ cập nhật bản mới hơn. Sai checksum, sai khóa extension, ZIP lỗi
+  hoặc tải thất bại thì không thay bản đang dùng. Nếu thay thư mục lỗi, nó trả
+  lại thư mục cũ. Không xóa dữ liệu IndexedDB hoặc profile Chrome.
+- Chạy Uninstall-LMG-Updater.cmd rồi chọn cùng thư mục để gỡ tác vụ nền.
+  Nếu chuyển thư mục LMG sang nơi khác, gỡ tác vụ cũ và cài lại cho đường dẫn mới.
+- Repository đã Public, nên kiểm tra release không cần GitHub token.
+
+Kiểm thử bản 1.1.0: 22 kiểm thử JavaScript, 9 kiểm thử PowerShell Windows,
+kiểm thử Chromium cho IndexedDB và kiểm thử tự nạp lại sau thay thư mục thực tế.
+OAuth, Extension ID và dữ liệu IndexedDB được giữ qua lần cập nhật thử nghiệm.
+Không có tác vụ nền nào được cài cho extension thật trong các kiểm thử này.
 
 Tài liệu chính thức:
 Chrome OAuth: https://developer.chrome.com/docs/extensions/how-to/integrate/oauth

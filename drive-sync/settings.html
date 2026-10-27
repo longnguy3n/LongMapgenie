@@ -6,6 +6,7 @@
   <title>LMG · Đồng bộ Google Drive</title>
   <link rel="stylesheet" href="settings.css">
   <script src="settings.js" defer></script>
+  <script src="../updates/settings.js" defer></script>
 </head>
 <body>
 <main>
@@ -36,6 +37,15 @@
     <p>Tải bản sao đầy đủ để lưu dự phòng. File này dùng định dạng database của bản LMG Drive; chức năng Export all games cũ vẫn dùng cho Data Manager.</p>
     <div class="actions"><button id="export">Tải database hiện tại</button><button id="recovery">Tải bản trước lần nhận dữ liệu gần nhất</button><button id="restore">Khôi phục file database</button></div>
     <input id="restore-file" type="file" accept="application/json,.json" hidden>
+  </section>
+  <section class="card" id="updates">
+    <div class="status-line"><h2>Cập nhật LMG</h2><span id="update-version"></span></div>
+    <p id="update-status">Đang kiểm tra trạng thái…</p>
+    <p id="update-error" class="muted" hidden></p>
+    <p id="update-time" class="muted"></p>
+    <p id="update-helper" class="muted"></p>
+    <div class="actions"><button id="check-update" data-update-action>Kiểm tra ngay</button><a id="update-release" href="https://github.com/longnguy3n/LongMapgine/releases/latest" target="_blank" rel="noreferrer">Mở trang phát hành</a></div>
+    <p class="muted">Chạy Install-LMG-Updater.cmd một lần, chọn thư mục LMG đã Load unpacked. Windows tự kiểm tra mỗi 6 giờ, kiểm tra checksum, giữ OAuth và bản sao thư mục cũ. Extension tự nạp lại khi cài xong; các tab MapGenie đang mở cần tải lại để dùng mã mới.</p>
   </section>
   <section class="card" id="setup">
     <h2>Cấu hình lần đầu</h2>

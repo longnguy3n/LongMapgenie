@@ -128,6 +128,16 @@ importScripts('core.js');
     await set('recovery', { time: Date.now(), data: local });
     await database('replace', { data: remote, expected: local });
   }
+  globalThis.LMGUpdateGate = {
+    busy: () => running,
+    async prepare() {
+      if (running) return false;
+      running = true;
+      try { await database('snapshot'); return true; }
+      catch { running = false; return false; }
+    },
+    resume() { running = false; }
+  };
   function publicHeads(heads) { return heads.map(f => ({ id: f.id, createdTime: f.createdTime, size: f.size })); }
   async function sync(resolution) {
     if (running) throw new Error('Đang đồng bộ. Hãy chờ thao tác hiện tại hoàn tất.');

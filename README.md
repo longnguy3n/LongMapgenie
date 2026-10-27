@@ -6,13 +6,32 @@ LMG is based on the supplied FMG 3.0.12 Chrome bundle. It adds a separate Drive 
 
 ## Install
 
-1. Download `LMG-1.0.0-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgine/releases/latest) and extract it.
+1. Download `LMG-1.1.0-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgine/releases/latest) and extract it.
 2. If you already use FMG, export your existing saves with **Export all games**, then disable that extension.
 3. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 4. Select the extracted folder containing `manifest.json`.
 5. Open MapGenie and verify your progress. If the old data is missing, import the previous export using **Data Manager**.
 
 Do not run FMG and LMG together on the same page. Local storage inheritance can depend on Chrome's storage partitioning; keep the export when switching builds.
+
+## Automatic Windows updates
+
+The repository and releases are public. LMG checks release metadata every six hours and shows a `NEW` badge when a newer stable package is available. GitHub outages or rate limits no longer produce the red popup error.
+
+Chrome cannot replace an unpacked extension's files by itself. For automatic installation on Windows:
+
+1. Install/extract v1.1.0 or newer. Double-click **Install-LMG-Updater.cmd**.
+2. In the folder chooser, select the **actual folder used by Chrome's Load unpacked**. It must contain LMG's `manifest.json`. A Git source checkout is deliberately rejected; use an extracted runtime folder.
+3. Close the installer. It registers a task for your current Windows user, with a hidden window and no elevated run level. The first check is scheduled about one minute later, then every six hours while you are signed in.
+4. Keep Chrome's **Developer mode enabled**. After a verified package is installed, LMG detects the ready marker within about one minute and reloads itself when Drive sync is not busy. Reload existing MapGenie tabs to use the new page scripts.
+
+For the first transition from **v1.0.0**, install v1.1.0 and press **Reload** in `chrome://extensions` once: v1.0.0 does not contain the automatic reload listener. Later updates use the new listener. Preserve `oauth2` when replacing an existing configured manifest manually; the Windows updater preserves it automatically.
+
+The updater accepts only the exact LongMapgine release URL, verifies SHA-256 (and GitHub's asset digest when present), validates the extension public key/version and ZIP paths, preserves the local OAuth configuration, and swaps the complete folder with rollback if the swap fails. Backups remain in a sibling `.lmg-updates-*` directory. It does not change Chrome profiles or IndexedDB files. Downloads and the scheduled helper are under `%LOCALAPPDATA%\LongMapgine\updater\`.
+
+To stop background updates, run **Uninstall-LMG-Updater.cmd** and select the same extension folder. The task is removed; extension data and backups remain. Moving the extension folder requires uninstalling the old task and installing one for the new path.
+
+The helper runs PowerShell already included with Windows; Node.js is not required for updating. The folder chooser intentionally leaves selecting the installed copy to you. Setup does not turn Developer mode on or modify browser security policies.
 
 ## Google Drive setup
 
@@ -66,7 +85,14 @@ npm run test:browser
 
 The browser suite uses an isolated temporary profile and intercepted website responses. It tests the real extension worker, offscreen iframe, Dexie/IndexedDB reads and writes, restore validation, recovery, persistence, and settings layout. It does not log in to Google. `CHROMIUM_PATH` and `PLAYWRIGHT_MODULE` can override the browser executable and Playwright module location.
 
-The first release passed 14 automated logic tests and the Chromium integration suite. **Live Google OAuth, real Drive transfers, and concurrent real-device sync have not been validated yet.** They require an OAuth client configured for this extension. The mock browser test does not certify compatibility with every current MapGenie page.
+Version 1.1.0 passed 22 JavaScript tests, nine Windows updater tests, the original Chromium integration suite, and a real folder-swap/reload test with Chromium running. The reload test verified that OAuth configuration, extension ID and IndexedDB data survived the update. Tests use isolated folders and do not register a persistent task for the user's real extension.
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/updater.ps1
+node tests/update-browser.cjs
+```
+
+**Live Google OAuth, real Drive transfers, and concurrent real-device sync have not been validated yet.** They require an OAuth client configured for this extension. The mock browser test does not certify compatibility with every current MapGenie page.
 
 To regenerate icons from the native SVG:
 
@@ -80,7 +106,7 @@ To package a release in PowerShell:
 ./tools/package.ps1
 ```
 
-Packaging uses an explicit runtime-file list, excludes tests/dependencies/Git metadata, rejects a locally configured OAuth client, and writes a ZIP plus SHA-256 checksum into `dist/`.
+Packaging uses an explicit runtime-file list, excludes tests/dependencies/Git metadata, omits local OAuth configuration from the archive without editing the working manifest, and writes a ZIP plus SHA-256 checksum into `dist/`.
 
 ## Source map
 
@@ -92,6 +118,8 @@ Packaging uses an explicit runtime-file list, excludes tests/dependencies/Git me
 | `drive-sync/settings.*` | Drive settings and setup UI |
 | `drive-sync/entry.js` | Starts the Drive worker and existing extension worker |
 | `configure-drive.cjs` | Adds the public OAuth Client ID to the local manifest |
+| `updates/` | Periodic release checks, update status UI and safe runtime reload |
+| `updater/` | Windows folder chooser, scheduled task and verified ZIP installer |
 | `background.js`, `page.js`, `content-scripts/`, `chunks/` | Bundled upstream extension with integration/branding changes |
 
 Internal `fmg:*` database names, `FMG_DRIVE_*` messages and snapshot formats are intentionally retained for compatibility with the preceding build. Keep the manifest public key unchanged to preserve the extension ID.
