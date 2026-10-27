@@ -168,7 +168,13 @@ importScripts('core.js');
         }
       }
       if (heads.length === 1 || resolution?.choice !== 'local' && resolution) remote = await readFile(chosen);
-      let action = heads.length > 1 ? 'conflict' : C.decide(local, remote, base?.data);
+      // v1 backups contain no map settings. Preserve local settings on migration.
+      const upgradingRemote = remote?.format === 'fmg-database-v1' && local.format === 'lmg-database-v2';
+      if (remote && local.format === 'lmg-database-v2') remote = C.withSettings(remote, local.mapSettings);
+      const baseData = base?.data && local.format === 'lmg-database-v2' ? C.withSettings(base.data, upgradingRemote ? local.mapSettings : []) : base?.data;
+      let action = heads.length > 1 ? 'conflict' : C.decide(local, remote, baseData);
+      // Upgrade an otherwise unchanged v1 cloud snapshot so other machines receive settings.
+      if (action === 'same' && upgradingRemote) action = 'upload';
       if (resolution) action = resolution.choice === 'local' ? 'upload' : 'download';
       if (generation !== currentGeneration || !(await get('enabled'))) throw new Error('Đồng bộ đã bị tắt.');
       if (action === 'conflict') {
@@ -184,7 +190,7 @@ importScripts('core.js');
         await applyRemote(local, remote);
         saved = remote; downloaded = true;
         // Explicitly resolve concurrent immutable heads with a new child snapshot.
-        if (heads.length > 1) id = await upload(remote, headIds);
+        if (heads.length > 1 || upgradingRemote) id = await upload(remote, headIds);
       }
       await set('base', { id, data: saved });
       await set('lastSuccess', Date.now());
@@ -192,7 +198,7 @@ importScripts('core.js');
       await status('ok', downloaded ? 'Đã nhận dữ liệu từ Drive. Tải lại trang MapGenie để thấy thay đổi.' : action === 'upload' ? 'Đã lưu toàn bộ dữ liệu lên Drive.' : 'Dữ liệu đã đồng bộ.');
       // Never overwrite an existing snapshot: concurrent uploads remain separate heads.
       // Retain 20 recent snapshots plus every head; only delete known superseded ancestors.
-      if (action === 'upload' || downloaded && heads.length > 1) {
+      if (action === 'upload' || downloaded && (heads.length > 1 || upgradingRemote)) {
         const ordered = [...files].sort((a, b) => String(b.createdTime).localeCompare(String(a.createdTime)));
         const protectedIds = new Set([...headIds, ...ordered.slice(0, 19).map(f => f.id)]);
         for (const file of ordered.slice(19).reverse()) {
@@ -219,6 +225,14 @@ importScripts('core.js');
   chrome.runtime.onInstalled.addListener(() => { void ensureAlarm(); });
   void ensureAlarm();
   chrome.runtime.onMessage.addListener((message, sender, respond) => {
+    if (message?.type === 'LMG_MAP_SETTINGS_V1') {
+      let url;
+      try { url = new URL(sender.url); } catch { return; }
+      if (sender.id !== chrome.runtime.id || sender.frameId !== 0 || !C.ORIGINS.includes(url.origin) || url.searchParams.has('fmgBackend') || url.searchParams.has('fmgStorage')) { respond({ error: 'Không được phép.' }); return; }
+      database('map-settings', { origin: url.origin, mode: message.mode, entries: message.entries, epoch: message.epoch })
+        .then(data => respond({ data })).catch(error => respond({ error: error.message || String(error) }));
+      return true;
+    }
     if (message?.type === 'LMG_DATA_EXPORT_V1') {
       // Read-only backup from the extension popup; no mutation/login actions are exposed here.
       if (sender.id !== chrome.runtime.id || sender.url !== chrome.runtime.getURL('popup.html')) { respond({ error: 'Không được phép.' }); return; }

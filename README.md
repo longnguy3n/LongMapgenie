@@ -6,7 +6,7 @@ LMG is based on the supplied FMG 3.0.12 Chrome bundle. It adds a separate Drive 
 
 ## Install
 
-1. Download `LMG-1.2.2-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgine/releases/latest) and extract it.
+1. Download `LMG-1.3.0-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgine/releases/latest) and extract it.
 2. If you already use FMG, export your existing saves with **Export all games**, then disable that extension.
 3. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 4. Select the extracted folder containing `manifest.json`.
@@ -61,7 +61,9 @@ The complete Vietnamese guide is [HUONG-DAN.txt](HUONG-DAN.txt). Configuration h
 ## Sync behavior
 
 - Local IndexedDB remains the primary store, including when offline.
-- Sync covers locations, tracked categories, notes, presets/order, bookmarks, profiles, and legacy database tables.
+- Sync covers locations, tracked categories, notes, presets/order, bookmarks, profiles, legacy database tables and LMG map preferences: found locations visibility, map type, interior overlays, tag filters, showing notes on load and tile-coordinate swap.
+- Upgrade **every device to 1.3.0 or newer**. Reopen maps after upgrading to collect existing preferences from that website's localStorage. One page collects all LMG preferences for its origin, including other games; open each supported website you used before the first manual sync. Preferences remain scoped to the same website origin on other devices.
+- Full backups now use `lmg-database-v2`. Older database backups remain importable and preserve settings they never contained; older extension versions reject v2 instead of silently discarding settings. The legacy Export all games format does not include map settings; use the full database backup for those.
 - Chrome checks Drive about once per minute while it is running. You can also sync manually.
 - Snapshots are stored in the app's hidden `appDataFolder`; they do not appear as ordinary files in My Drive.
 - Independent edits on two devices stop synchronization until you choose the entire local or remote database. Automatic record-level merging is not implemented.
@@ -69,6 +71,12 @@ The complete Vietnamese guide is [HUONG-DAN.txt](HUONG-DAN.txt). Configuration h
 - Before applying remote data, LMG saves a local recovery copy and atomically checks that local data has not changed during the download.
 - Reload open MapGenie tabs after receiving remote changes.
 - MapGenie authentication tokens, cookies and map caches are not included in Drive snapshots.
+
+Map settings are copied into IndexedDB and included in the same atomic snapshot/restore transaction as presets and progress. Stale tabs cannot write settings over a newly downloaded snapshot; reload the map when prompted. Settings are shared by game/map on a website, while presets retain their existing profile ownership. OAuth configuration, updater paths and the extension's power switch stay local.
+
+## Ads and Admiral
+
+LMG blocks identified ad scripts on supported map websites, including MapGenie's Pogo scripts and the observed Admiral host, and hides known ad containers. A persistent observer also hides late-arriving overlays branded **Powered by Admiral**. The existing LMG power switch controls the added network and page rules. The rules preserve map resources, Google sign-in, consent scripts and ordinary dialogs. Ad providers can change their domains or markup, so future variants may need another rule update.
 
 Use **Tải database hiện tại** and **Khôi phục file database** for full database backups. These files differ from the original **Export all games** format, which is still imported through Data Manager.
 

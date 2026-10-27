@@ -1,0 +1,67 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "initiatorDomains": [
+        "mapgenie.io",
+        "rdr2map.com",
+        "fo76map.com",
+        "division2map.com",
+        "gta-5-map.com",
+        "fallout4map.com"
+      ],
+      "requestDomains": [
+        "googlesyndication.com",
+        "doubleclick.net",
+        "googleadservices.com",
+        "googletagservices.com",
+        "nitropay.com",
+        "amazon-adsystem.com",
+        "adnxs.com",
+        "rubiconproject.com",
+        "pubmatic.com",
+        "openx.net",
+        "casalemedia.com",
+        "criteo.com",
+        "criteo.net",
+        "adsrvr.org",
+        "getadmiral.com",
+        "bidpapers.com"
+      ],
+      "resourceTypes": [
+        "script",
+        "sub_frame",
+        "image",
+        "xmlhttprequest",
+        "media",
+        "ping",
+        "other"
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "initiatorDomains": [
+        "mapgenie.io",
+        "rdr2map.com",
+        "fo76map.com",
+        "division2map.com",
+        "gta-5-map.com",
+        "fallout4map.com"
+      ],
+      "regexFilter": "^https?://cdn\\.ziffstatic\\.com/pg/mapgenie(\\.prebid)?\\.js([?#].*)?$",
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  }
+]

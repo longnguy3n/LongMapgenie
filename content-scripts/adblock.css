@@ -1,0 +1,8 @@
+/* Apply only on supported map sites; the script synchronizes the existing LMG power switch. */
+html:not([data-lmg-adblock="off"]) :is(
+  #blobby-left, #blobby-overlay, [data-pogo], #nitro-floating-wrapper,
+  .ad-container, .ad-wrapper, .ad-slot, .ad-banner, ins.adsbygoogle,
+  [data-ad-slot], [data-ad-unit], [id^="google_ads_iframe_"],
+  iframe[name^="google_ads_iframe_"], iframe[name^="aswift_"],
+  [data-lmg-ad-hidden]
+) { display: none !important; }

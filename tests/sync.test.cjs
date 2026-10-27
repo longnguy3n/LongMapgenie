@@ -129,6 +129,69 @@ test('full popup backup works without an active profile and rejects web-page req
 test('row and object ordering does not cause a false conflict', () => {
   assert.equal(C.equal(data([2, 1]), data([1, 2])), true);
 });
+
+function configuredData(ids = [1], value = true) {
+  return { ...data(ids), format: 'lmg-database-v2', mapSettings: [{ origin: 'https://mapgenie.io', key: 'mg:settings:game_1:found_locations_shown', value }] };
+}
+test('settings and preset ordering survive Drive upload/download, including settings-only saves', async () => {
+  const local = configuredData([]);
+  local.tables.presets = [{ id: 7, game_id: 1, user_id: -1, name: 'Loot', categories: [3, 4] }];
+  local.tables.presetsOrdering = [{ id: 1, user_id: -1, ordering: [7] }];
+  const first = harness({ local });
+  try {
+    assert.equal((await first.ui('sync')).error, undefined);
+    assert.deepEqual(first.writes[0].data.mapSettings, local.mapSettings);
+    const second = harness({ remote: [{ id: 'a', data: first.writes[0].data }] });
+    try {
+      assert.equal((await second.ui('sync')).error, undefined);
+      assert.equal(C.equal(second.db, local), true);
+    } finally { second.close(); }
+    assert.equal(C.empty(configuredData([])), false);
+  } finally { first.close(); }
+});
+test('v1 Drive migration preserves local settings and publishes a v2 snapshot', async () => {
+  const local = configuredData();
+  const h = harness({ local, base: { id: 'a', data: data([1]) }, remote: [{ id: 'a', data: data([1]) }] });
+  try {
+    assert.equal((await h.ui('sync')).error, undefined);
+    assert.equal(h.writes.length, 1);
+    assert.equal(h.writes[0].data.format, 'lmg-database-v2');
+    assert.deepEqual(h.writes[0].data.mapSettings, local.mapSettings);
+  } finally { h.close(); }
+});
+test('settings conflicts and concurrent changes are protected by the same snapshot comparison', async () => {
+  const a = configuredData(), b = configuredData([1], false), c = { ...a, mapSettings: [] };
+  assert.equal(C.decide(b, c, a), 'conflict');
+  assert.equal(C.decide(a, b, a), 'download');
+  const h = harness({ local: a, base: { id: 'a', data: a }, remote: [{ id: 'b', data: b }] });
+  const original = h.port.postMessage;
+  h.port.postMessage = message => { if (message.action === 'replace') h.db = c; original(message); };
+  try {
+    assert.match((await h.ui('sync')).error, /Concurrent local edit/);
+    assert.equal(C.equal(h.db, c), true);
+  } finally { h.close(); }
+});
+test('a v1 base cannot silently discard locally imported preferences when another device already wrote v2', async () => {
+  const h = harness({ local: configuredData([1], true), base: { id: 'a', data: data([1]) }, remote: [{ id: 'b', data: configuredData([1], false) }] });
+  try {
+    assert.equal((await h.ui('sync')).error, undefined);
+    assert.equal(h.storage['fmgDrive.status'].state, 'conflict');
+    assert.equal(h.db.mapSettings[0].value, true);
+    assert.equal(h.writes.length, 0);
+  } finally { h.close(); }
+});
+test('settings allowlist rejects credentials, unknown origins, duplicate keys and invalid values', () => {
+  for (const row of [
+    { origin: 'https://mapgenie.io', key: 'auth_token', value: 'secret' },
+    { origin: 'https://example.com', key: 'mg:settings:game_1:map_type', value: 'Satellite' },
+    { origin: 'https://mapgenie.io', key: 'mg:settings:game_1:found_locations_shown', value: {} }
+  ]) assert.throws(() => C.validate({ ...configuredData(), mapSettings: [row] }));
+  const valid = configuredData();
+  assert.throws(() => C.validate({ ...valid, mapSettings: [...valid.mapSettings, ...valid.mapSettings] }));
+  assert.throws(() => C.equal({ ...valid, format: 'unknown' }, valid));
+  // Older clients fail closed on the v2 format instead of erasing settings.
+  assert.notEqual(valid.format, 'fmg-database-v1');
+});
 test('invalid schemas and duplicate primary keys are rejected', () => {
   assert.throws(() => C.validate({ format: 'fmg-database-v1', tables: {} }));
   assert.throws(() => C.validate(data([1, 1])));

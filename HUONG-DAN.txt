@@ -1,4 +1,4 @@
-LMG 1.2.2 — LONGMAPGINE + GOOGLE DRIVE + TỰ CẬP NHẬT
+LMG 1.3.0 — LONGMAPGINE + GOOGLE DRIVE + TỰ CẬP NHẬT
 
 Repository: https://github.com/longnguy3n/LongMapgine
 Tải bản cài: https://github.com/longnguy3n/LongMapgine/releases/latest
@@ -7,7 +7,7 @@ Extension ID: okoelmnpaigkpbnooodiafamdbikbian
 1. SAO LƯU VÀ CÀI BẢN SỬA
 
 - Trong FMG hoặc bản LMG trước, dùng Export all games để tải bản sao JSON.
-- Giải nén LMG-1.2.2-chrome.zip vào một thư mục cố định.
+- Giải nén LMG-1.3.0-chrome.zip vào một thư mục cố định.
 - Mở chrome://extensions, tắt bản cũ. Không chạy hai bản cùng lúc.
 - Bật Developer mode, chọn Load unpacked, chọn thư mục vừa giải nén có manifest.json.
 - Mở popup LMG, bấm “Đồng bộ Google Drive”. Có thể vào Details > Extension options.
@@ -60,6 +60,15 @@ Giữ JSON hợp lệ và giữ nguyên trường key có sẵn.
 
 - Toàn bộ các bảng trong fmg:database được đồng bộ: tiến độ, nhóm theo dõi,
   ghi chú, preset và thứ tự, bookmark, profile, các bảng dữ liệu cũ.
+- Từ 1.3.0: thêm setting hiện điểm đã tìm, loại bản đồ, lớp nội thất, bộ lọc tag,
+  hiện ghi chú khi mở bản đồ và đảo tọa độ tile. Preset giữ nguyên profile sở hữu.
+- Cập nhật 1.3.0 trở lên ở tất cả máy. Mở lại bản đồ sau khi cập nhật để thu thập
+  setting cũ, rồi bấm Đồng bộ ngay. Một trang thu thập setting của mọi game trong
+  cùng website; mở mỗi website bản đồ đã dùng nếu bạn dùng nhiều tên miền.
+- Setting áp dụng cho cùng website ở máy khác. Sau khi nhận bản Drive, tải lại
+  bản đồ để áp dụng; tab cũ sẽ yêu cầu tải lại nếu có nguy cơ ghi đè setting mới.
+- Bản sao đầy đủ dùng lmg-database-v2. Bản cũ vẫn nhập được và không xóa setting
+  hiện tại. Export all games cũ không chứa setting; dùng Tải database hiện tại.
 - Không đồng bộ token MapGenie, cookie, đăng nhập Chrome hoặc cache bản đồ.
 - Tiến độ luôn được lưu cục bộ trước. Drive được kiểm tra mỗi phút khi Chrome chạy,
   hoặc khi bấm “Đồng bộ ngay”. Đóng Chrome thì không chạy đồng bộ.
