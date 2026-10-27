@@ -1,0 +1,123 @@
+@font-face {
+    font-family: "fmg-icons";
+    src: url("/assets/fmg-icons.ttf?8c938efc9841a9a6a1794491c53242c0") format("truetype"),
+url("/assets/fmg-icons.woff?8c938efc9841a9a6a1794491c53242c0") format("woff"),
+url("/assets/fmg-icons.woff2?8c938efc9841a9a6a1794491c53242c0") format("woff2");
+}
+
+i[class^="fmg-icon-"]:before, i[class*=" fmg-icon-"]:before {
+    font-family: fmg-icons !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.fmg-icon-attention:before {
+    content: "\f101";
+}
+.fmg-icon-bookmark:before {
+    content: "\f102";
+}
+.fmg-icon-caret-down:before {
+    content: "\f103";
+}
+.fmg-icon-caret-left:before {
+    content: "\f104";
+}
+.fmg-icon-caret-right:before {
+    content: "\f105";
+}
+.fmg-icon-caret-up:before {
+    content: "\f106";
+}
+.fmg-icon-check:before {
+    content: "\f107";
+}
+.fmg-icon-cross:before {
+    content: "\f108";
+}
+.fmg-icon-dark:before {
+    content: "\f109";
+}
+.fmg-icon-dash:before {
+    content: "\f10a";
+}
+.fmg-icon-database:before {
+    content: "\f10b";
+}
+.fmg-icon-document:before {
+    content: "\f10c";
+}
+.fmg-icon-download:before {
+    content: "\f10d";
+}
+.fmg-icon-error:before {
+    content: "\f10e";
+}
+.fmg-icon-file:before {
+    content: "\f10f";
+}
+.fmg-icon-g:before {
+    content: "\f110";
+}
+.fmg-icon-gear:before {
+    content: "\f111";
+}
+.fmg-icon-geo:before {
+    content: "\f112";
+}
+.fmg-icon-info-circled:before {
+    content: "\f113";
+}
+.fmg-icon-info:before {
+    content: "\f114";
+}
+.fmg-icon-light:before {
+    content: "\f115";
+}
+.fmg-icon-minus:before {
+    content: "\f116";
+}
+.fmg-icon-note:before {
+    content: "\f117";
+}
+.fmg-icon-open-new-tab:before {
+    content: "\f118";
+}
+.fmg-icon-p-square:before {
+    content: "\f119";
+}
+.fmg-icon-person-import:before {
+    content: "\f11a";
+}
+.fmg-icon-plus:before {
+    content: "\f11b";
+}
+.fmg-icon-power:before {
+    content: "\f11c";
+}
+.fmg-icon-reload:before {
+    content: "\f11d";
+}
+.fmg-icon-success:before {
+    content: "\f11e";
+}
+.fmg-icon-tag:before {
+    content: "\f11f";
+}
+.fmg-icon-trash:before {
+    content: "\f120";
+}
+.fmg-icon-upload:before {
+    content: "\f121";
+}
+.fmg-icon-user:before {
+    content: "\f122";
+}
+.fmg-icon-warn:before {
+    content: "\f123";
+}

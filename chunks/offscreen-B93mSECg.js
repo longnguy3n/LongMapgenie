@@ -1,0 +1,1 @@
+import{o as e,l as i}from"./offscreen.service-bOdWPElZ.js";import"./port-Cndtgfcc.js";!async function(){const o=e.provide();await o.addIframe("https://mapgenie.io/?fmgBackend"),i.log("Offscreen content script initialized.")}();

@@ -1,0 +1,31 @@
+:root { color-scheme: dark; font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', sans-serif; background: #10151d; color: #e8eef8; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 900px; padding: 48px 24px 80px; margin: auto; }
+header { display: flex; gap: 20px; align-items: center; }
+header img { width: 56px; height: 56px; }
+h1 { font-size: clamp(26px, 4vw, 38px); line-height: 1.2; margin: 4px 0 12px; letter-spacing: -.025em; }
+h2 { font-size: 19px; margin: 0; }
+.eyebrow { font-size: 12px; letter-spacing: .14em; color: #7de5c2; margin: 0; font-weight: 700; }
+.intro { color: #b5c2d5; max-width: 730px; margin: 20px 0 28px; }
+.card { background: #19212d; border: 1px solid #304056; border-radius: 14px; padding: 24px; margin: 18px 0; }
+.status-line { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+#badge { color: #90e4c4; background: #183c35; font-size: 13px; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+.muted { color: #a4b4c9; font-size: 14px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
+button, select { font: inherit; color: inherit; background: #27364a; border: 1px solid #47617c; border-radius: 8px; padding: 10px 15px; }
+button { cursor: pointer; }
+button:hover { background: #354b65; }
+button.primary { color: #06261d; background: #7de5c2; border-color: #7de5c2; font-weight: 650; }
+button:disabled { opacity: .45; cursor: default; }
+button:focus-visible, select:focus-visible, a:focus-visible { outline: 3px solid #8bbdff; outline-offset: 3px; }
+select { display: block; margin-top: 8px; max-width: 100%; width: 100%; }
+.conflict { border-color: #c89946; }
+#error { color: #ffb4a9; }
+#reload { background: #243d4c; border-radius: 8px; padding: 12px; }
+code, pre { color: #b9e7ff; font-family: ui-monospace, Consolas, monospace; overflow-wrap: anywhere; }
+pre { padding: 12px; background: #111923; border-radius: 6px; white-space: pre-wrap; }
+li { margin: 12px 0; }
+a { color: #8bc9ff; }
+[hidden] { display: none !important; }
+@media (max-width: 550px) { main { padding: 28px 16px; } .card { padding: 18px; } .status-line { align-items: start; flex-direction: column; } ol { padding-left: 22px; } }

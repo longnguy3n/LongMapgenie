@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LMG · Đồng bộ Google Drive</title>
+  <link rel="stylesheet" href="settings.css">
+  <script src="settings.js" defer></script>
+</head>
+<body>
+<main>
+  <header><img src="../icon/64.png" alt=""><div><p class="eyebrow">LMG / GOOGLE DRIVE</p><h1>Tiến độ đi cùng bạn.</h1></div></header>
+  <p class="intro">Đồng bộ địa điểm, nhóm theo dõi, ghi chú, preset, bookmark và profile giữa các máy. Dữ liệu vẫn được lưu trên máy khi bạn mất mạng.</p>
+  <section class="card" aria-labelledby="status-heading">
+    <div class="status-line"><h2 id="status-heading">Trạng thái đồng bộ</h2><span id="badge">Đang tải</span></div>
+    <p id="status" role="status" aria-live="polite">Đang kiểm tra…</p>
+    <p id="last-success" class="muted"></p>
+    <p id="error" role="alert" hidden></p>
+    <div class="actions">
+      <button id="connect" class="primary">Kết nối Google Drive</button>
+      <button id="sync">Đồng bộ ngay</button>
+      <button id="disconnect">Tắt đồng bộ</button>
+    </div>
+    <p class="muted">Tự kiểm tra mỗi phút khi Chrome chạy. Dữ liệu nằm trong vùng riêng của LMG trên Drive; không hiện thành thư mục thông thường. Không tải token đăng nhập MapGenie lên Drive.</p>
+    <p id="reload" hidden>Đã nhận dữ liệu mới. Hãy tải lại các tab MapGenie đang mở. <button id="acknowledge">Đã tải lại</button></p>
+  </section>
+  <section id="conflict" class="card conflict" hidden>
+    <h2>Chọn dữ liệu cần giữ</h2>
+    <p>Các máy có dữ liệu khác nhau. Lựa chọn dưới đây áp dụng cho <strong>toàn bộ database</strong>, không gộp từng địa điểm. Bản cục bộ được sao lưu trước khi thay thế.</p>
+    <label for="remote">Bản dữ liệu trên Drive</label>
+    <select id="remote"></select>
+    <div class="actions"><button id="keep-local">Dùng dữ liệu trên máy này</button><button id="use-remote">Dùng bản Drive đã chọn</button></div>
+  </section>
+  <section class="card">
+    <h2>Bản sao trên máy</h2>
+    <p>Tải bản sao đầy đủ để lưu dự phòng. File này dùng định dạng database của bản LMG Drive; chức năng Export all games cũ vẫn dùng cho Data Manager.</p>
+    <div class="actions"><button id="export">Tải database hiện tại</button><button id="recovery">Tải bản trước lần nhận dữ liệu gần nhất</button><button id="restore">Khôi phục file database</button></div>
+    <input id="restore-file" type="file" accept="application/json,.json" hidden>
+  </section>
+  <section class="card" id="setup">
+    <h2>Cấu hình lần đầu</h2>
+    <p>Bản này dùng đăng nhập Google của Chrome. Hai máy cần cùng tài khoản Google, cùng bản extension và cùng OAuth Client ID.</p>
+    <ol>
+      <li>Trong <a href="https://console.cloud.google.com/" target="_blank" rel="noreferrer">Google Cloud Console</a>, tạo hoặc chọn project và bật <strong>Google Drive API</strong>.</li>
+      <li>Vào Google Auth Platform, cấu hình tên ứng dụng và email hỗ trợ. Với ứng dụng External ở chế độ Testing, thêm tài khoản của bạn vào danh sách Test users.</li>
+      <li>Tạo OAuth client loại <strong>Chrome Extension</strong> (một số giao diện gọi là Chrome App), dùng Extension ID dưới đây:<br><code id="extension-id"></code></li>
+      <li>Thêm scope <code>https://www.googleapis.com/auth/drive.appdata</code> trong phần Data Access nếu giao diện yêu cầu.</li>
+      <li>Chạy lệnh trong thư mục extension, thay giá trị bằng Client ID vừa tạo:<pre>node configure-drive.cjs YOUR_CLIENT_ID.apps.googleusercontent.com</pre>Chỉ cần Client ID công khai, không cần Client Secret.</li>
+      <li>Ở trang quản lý extension của Chrome, nhấn Reload cho bản LMG Drive. Mở lại trang này và chọn <strong>Kết nối Google Drive</strong>.</li>
+      <li>Chép cùng thư mục đã cấu hình sang máy thứ hai, cài bằng Load unpacked và kết nối. Nếu cả hai máy đã có dữ liệu khác nhau, LMG sẽ yêu cầu chọn bản cần giữ.</li>
+    </ol>
+    <p class="muted">Trước khi đổi từ FMG hoặc bản LMG trước: Export all games để sao lưu, tắt bản cũ rồi cài bản mới. Không chạy hai bản cùng lúc. Nếu chưa thấy dữ liệu cũ, dùng Data Manager để nhập file export trước khi kết nối Drive.</p>
+    <p class="muted">ID ổn định nhờ public key trong manifest. Giữ nguyên key và cùng project OAuth trên mọi máy. Bản này chưa tự đăng nhập hoặc tải dữ liệu lên trước khi bạn kết nối. Drive giữ khoảng 20 phiên bản gần nhất và các nhánh chưa giải quyết.</p>
+  </section>
+</main>
+</body>
+</html>

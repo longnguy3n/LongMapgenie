@@ -1,0 +1,91 @@
+{
+  "manifest_version": 3,
+  "name": "LMG",
+  "description": "LongMapgine: MapGenie enhancements with optional Google Drive progress sync.",
+  "version": "1.0.0",
+  "icons": {
+    "16": "icon/16.png",
+    "32": "icon/32.png",
+    "64": "icon/64.png",
+    "128": "icon/128.png"
+  },
+  "host_permissions": [
+    "*://mapgenie.io/*",
+    "*://www.mapgenie.io/*",
+    "*://cdn.mapgenie.io/*",
+    "https://www.googleapis.com/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "matches": [
+        "*://rdr2map.com/*",
+        "*://fo76map.com/*",
+        "*://mapgenie.io/*",
+        "*://division2map.com/*",
+        "*://gta-5-map.com/*",
+        "*://fallout4map.com/*"
+      ],
+      "resources": [
+        "page.js",
+        "popup.html",
+        "logo.svg",
+        "content-scripts/*.css",
+        "assets/*"
+      ]
+    }
+  ],
+  "permissions": [
+    "declarativeNetRequest",
+    "offscreen",
+    "storage",
+    "identity",
+    "alarms",
+    "unlimitedStorage"
+  ],
+  "background": {
+    "service_worker": "drive-sync/entry.js"
+  },
+  "action": {
+    "default_title": "LMG",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://mapgenie.io/*"
+      ],
+      "all_frames": true,
+      "run_at": "document_start",
+      "js": [
+        "drive-sync/core.js",
+        "drive-sync/database.js",
+        "content-scripts/backend.js"
+      ]
+    },
+    {
+      "matches": [
+        "*://division2map.com/*",
+        "*://fallout4map.com/*",
+        "*://fo76map.com/*",
+        "*://gta-5-map.com/*",
+        "*://mapgenie.io/*",
+        "*://rdr2map.com/*"
+      ],
+      "all_frames": true,
+      "run_at": "document_start",
+      "css": [
+        "content-scripts/content.css"
+      ],
+      "js": [
+        "content-scripts/content.js",
+        "content-scripts/storage.js"
+      ]
+    }
+  ],
+  "options_ui": {
+    "page": "drive-sync/settings.html",
+    "open_in_tab": true
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxEYYLZpsqYtLR55634okNz1Jib3QnwlY39am954jObqmFmyLOC8o6rwRUw0/AjZsNXzucuOAk3bDO+CjZW9DVqTbBrBcy0LCoLF0oOvW5PLBT1A7SxWRso2Ky03dgXCDCdNx2F/+rqfTuQMRRRoSn7XBFIrONoJv5C3QeDptJ2QCXnujQ1KcLz9N0TcExHkXMdhJWhE8shC+h7sKW6Xfjld3MPGul29VdL4mQvXgevqol4qQnsyHx6Y7XOm3dwfVgzADlT2NRG3CsJzAHM+Dv2Q7Q6LxMwyM8QzJhZnPVlPyI27PdV8TUbKbQPnnHGs7vhdYST6y1FQwbkx7lqIIrQIDAQAB",
+  "homepage_url": "https://github.com/longnguy3n/LongMapgine"
+}

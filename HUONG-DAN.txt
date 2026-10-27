@@ -1,0 +1,119 @@
+LMG 1.0.0 — LONGMAPGINE + GOOGLE DRIVE
+
+Repository: https://github.com/longnguy3n/LongMapgine
+Tải bản cài: https://github.com/longnguy3n/LongMapgine/releases/latest
+Extension ID: okoelmnpaigkpbnooodiafamdbikbian
+
+1. SAO LƯU VÀ CÀI BẢN SỬA
+
+- Trong FMG hoặc bản LMG trước, dùng Export all games để tải bản sao JSON.
+- Giải nén LMG-1.0.0-chrome.zip vào một thư mục cố định.
+- Mở chrome://extensions, tắt bản cũ. Không chạy hai bản cùng lúc.
+- Bật Developer mode, chọn Load unpacked, chọn thư mục vừa giải nén có manifest.json.
+- Mở popup LMG, bấm “Đồng bộ Google Drive”. Có thể vào Details > Extension options.
+- Kiểm tra tiến độ. Nếu chưa thấy dữ liệu cũ, mở Data Manager và nhập file export.
+  Database nằm trong ngữ cảnh MapGenie/iframe; việc kế thừa dữ liệu giữa hai ID
+  extension còn phụ thuộc cách Chrome phân vùng lưu trữ. Vì vậy cần bản export.
+
+2. TẠO OAUTH CLIENT ID (LÀM MỘT LẦN)
+
+- Mở https://console.cloud.google.com/ và tạo/chọn project.
+- Vào APIs & Services > Library, bật Google Drive API.
+- Vào Google Auth Platform, điền Branding (tên app, email hỗ trợ).
+- Chọn Audience phù hợp. Với tài khoản cá nhân dùng External; khi ở Testing,
+  thêm email của bạn vào Test users. Làm theo các bước cấu hình Google yêu cầu.
+- Trong Clients, tạo OAuth client loại Chrome Extension (có thể có tên Chrome App).
+- Nhập Extension ID: okoelmnpaigkpbnooodiafamdbikbian
+- Trong Data Access, cấu hình scope khi Google yêu cầu:
+  https://www.googleapis.com/auth/drive.appdata
+- Sao chép Client ID có đuôi .apps.googleusercontent.com.
+  Không cần Client Secret; không đưa Client Secret vào mã extension.
+
+Mở PowerShell tại thư mục vừa giải nén và chạy (cần cài Node.js):
+
+  node configure-drive.cjs YOUR_CLIENT_ID.apps.googleusercontent.com
+
+Thay YOUR_CLIENT_ID bằng ID thật.
+Lệnh này chỉ cập nhật manifest.json trong bản sửa.
+Sau đó vào chrome://extensions > Reload bản LMG Drive.
+Mở lại trang đồng bộ, bấm “Kết nối Google Drive” và chấp nhận quyền.
+Đăng nhập Chrome bằng tài khoản Google bạn muốn dùng để lưu dữ liệu.
+
+Nếu muốn sửa thủ công thay vì dùng Node, thêm trường oauth2 vào manifest.json:
+
+  "oauth2": {
+    "client_id": "YOUR_CLIENT_ID.apps.googleusercontent.com",
+    "scopes": ["https://www.googleapis.com/auth/drive.appdata"]
+  }
+
+Giữ JSON hợp lệ và giữ nguyên trường key có sẵn.
+
+3. CÀI TRÊN MÁY THỨ HAI
+
+- Chép cùng thư mục đã cấu hình (bao gồm manifest.json với key và oauth2).
+- Dùng Chrome, Load unpacked và kết nối cùng tài khoản Google.
+- Cần cùng OAuth project/Client ID trên các máy, không tạo client riêng cho mỗi máy.
+- Máy chưa có tiến độ sẽ nhận bản từ Drive.
+- Nếu cả hai bên có dữ liệu khác nhau, LMG dừng để bạn chọn bản cần giữ.
+
+4. CÁCH ĐỒNG BỘ
+
+- Toàn bộ các bảng trong fmg:database được đồng bộ: tiến độ, nhóm theo dõi,
+  ghi chú, preset và thứ tự, bookmark, profile, các bảng dữ liệu cũ.
+- Không đồng bộ token MapGenie, cookie, đăng nhập Chrome hoặc cache bản đồ.
+- Tiến độ luôn được lưu cục bộ trước. Drive được kiểm tra mỗi phút khi Chrome chạy,
+  hoặc khi bấm “Đồng bộ ngay”. Đóng Chrome thì không chạy đồng bộ.
+- Chrome tự quản lý OAuth token; không ghi token vào file Drive hoặc mã nguồn.
+- Dữ liệu dùng appDataFolder riêng của ứng dụng, không xuất hiện trong My Drive.
+- Khi nhận bản Drive, cần tải lại các tab MapGenie để giao diện cập nhật.
+- Lưu khoảng 20 phiên bản Drive và các nhánh chưa giải quyết. Chỉ xóa các bản
+  cũ đã được thay thế; thao tác ngắt kết nối không xóa dữ liệu cloud/cục bộ.
+- Không gộp tự động khi hai máy cùng sửa: bạn chọn toàn bộ bản máy hoặc bản Drive.
+  Cách này tránh việc ghép sai ID preset, profile hoặc khôi phục nhầm điểm đã bỏ dấu.
+
+5. KHÔI PHỤC
+
+- “Tải database hiện tại” tải bản sao đầy đủ của bản LMG Drive.
+- Trước mỗi lần thay dữ liệu trên máy, LMG giữ một bản sao khôi phục cục bộ.
+- “Tải bản trước lần nhận dữ liệu gần nhất” lấy bản đó.
+- “Khôi phục file database” nhận các file database này và tắt đồng bộ để bạn
+  kiểm tra kết quả. Tải lại MapGenie rồi kết nối Drive lại khi sẵn sàng.
+- File database của bản Drive không cùng định dạng với Export all games cũ.
+  File export cũ vẫn nhập bằng Data Manager; file database nhập ở trang Drive.
+
+6. NẾU KHÔNG KẾT NỐI ĐƯỢC
+
+- invalid_client: kiểm tra Client ID, loại Chrome Extension, Extension ID và Reload.
+- access_denied: kiểm tra Test users, tài khoản Chrome, scope và màn hình cấp quyền.
+- HTTP 403: kiểm tra Drive API đã bật, quyền đã cấp và hạn mức của Google.
+- Backend chưa sẵn sàng: mở MapGenie hoặc Reload extension rồi thử lại.
+- Mất mạng: dữ liệu trên máy vẫn còn; đồng bộ tự thử lại khi Chrome hoạt động.
+- Đổi tài khoản Google: tắt đồng bộ trước, sao lưu rồi kết nối tài khoản mới.
+- Đây là bản dùng Chrome Identity API; chưa hỗ trợ đăng nhập trên Edge/Firefox.
+
+7. KIỂM THỬ VÀ GIỚI HẠN XÁC MINH
+
+Đã chạy:
+- 14 kiểm thử Node cho luồng upload/download, xung đột, phản hồi lỗi, race khi sửa
+  dữ liệu cục bộ, xác thực dữ liệu khôi phục và giới hạn nguồn gửi thông điệp.
+- Kiểm thử Chromium ẩn với profile tạm riêng, website giả lập: extension worker,
+  offscreen iframe, Dexie/IndexedDB thật, lưu/đọc các bảng, khôi phục, dữ liệu lỗi,
+  bản sao dự phòng, giữ dữ liệu qua reload và trang cấu hình ở màn hình hẹp.
+
+Chưa kiểm thử đăng nhập Google và truyền dữ liệu Drive thật do chưa có OAuth
+Client ID. Không có tài khoản nào được đăng nhập và không có dữ liệu thật được tải
+lên Drive trong quá trình chuẩn bị. Cần kiểm thử trên hai Chrome profile/máy sau
+khi cấu hình OAuth, nhất là chỉnh sửa cùng lúc và mất mạng.
+
+Kiểm thử logic: node --test tests/sync.test.cjs
+Kiểm thử trình duyệt: node tests/browser.cjs
+Trình duyệt test có thể cấu hình qua CHROMIUM_PATH và PLAYWRIGHT_MODULE.
+
+Các file mới nằm trong drive-sync/. Bundle gốc chỉ có hai điểm nối: khởi tạo
+database adapter trong backend.js và tách port Drive khỏi bus LMG trong background.js.
+Popup được thêm nút mở trang Drive; manifest khai báo worker mới, quyền và options.
+
+Tài liệu chính thức:
+Chrome OAuth: https://developer.chrome.com/docs/extensions/how-to/integrate/oauth
+Drive appDataFolder: https://developers.google.com/workspace/drive/api/guides/appdata
+Drive uploads: https://developers.google.com/workspace/drive/api/guides/manage-uploads
