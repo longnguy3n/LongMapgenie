@@ -6,7 +6,7 @@ LMG is based on the supplied FMG 3.0.12 Chrome bundle. It adds a separate Drive 
 
 ## Install
 
-1. Download `LMG-1.2.0-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgine/releases/latest) and extract it.
+1. Download `LMG-1.2.1-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgine/releases/latest) and extract it.
 2. If you already use FMG, export your existing saves with **Export all games**, then disable that extension.
 3. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 4. Select the extracted folder containing `manifest.json`.
@@ -141,3 +141,9 @@ Use a runtime folder rather than the repository checkout: the installer rejects 
 `configure-drive.cjs` now prints the exact manifest path it changed. LMG settings compare the saved manifest with Chrome's loaded configuration and show **Nạp lại extension để nhận OAuth** when a reload is needed. Reloading the web page alone does not reload the extension manifest. The reload button waits for active Drive work to finish and flushes the database before reloading. Live Google OAuth authorization still requires your own correctly configured Google Cloud client.
 
 Verification for v1.2.0: JavaScript tests cover manual-update completion, missing registration, failed tasks, concurrent clicks, sender restrictions and OAuth detection. Windows tests preserve the native host marker across folder replacement. An isolated Chromium test installs a temporary native host and Windows task, clicks the actual Update now button, verifies immediate task execution, and removes the test registrations. It also changes OAuth on disk and verifies that extension reload enables Connect. Separate browser tests cover popup clicks, database restore/persistence and automatic reload when adding the nativeMessaging permission.
+
+### Manual backups and Data-tab recovery (v1.2.1)
+
+The Data tab refreshes profile/page availability while visible and after switching tabs or profiles. **Export all games** writes a legacy v3 file for the active profile. **Tải bản sao toàn bộ dữ liệu** writes the full `fmg-database-v1` snapshot across all profiles and requires neither an active profile nor Google OAuth; restore it in Drive settings using **Khôi phục file database**. Opening Data Manager is also independent of profile availability. Actions for the current map/game retain their context requirements.
+
+`node tests/data-browser.cjs` exercises late profile arrival, real legacy/full/Drive downloads, opening Data Manager without a profile, unchanged data after export, and both standalone and embedded popup contexts. The corresponding new endpoint is read-only and accepts messages only from LMG's own popup.

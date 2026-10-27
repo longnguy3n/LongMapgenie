@@ -219,6 +219,12 @@ importScripts('core.js');
   chrome.runtime.onInstalled.addListener(() => { void ensureAlarm(); });
   void ensureAlarm();
   chrome.runtime.onMessage.addListener((message, sender, respond) => {
+    if (message?.type === 'LMG_DATA_EXPORT_V1') {
+      // Read-only backup from the extension popup; no mutation/login actions are exposed here.
+      if (sender.id !== chrome.runtime.id || sender.url !== chrome.runtime.getURL('popup.html')) { respond({ error: 'Không được phép.' }); return; }
+      database('snapshot').then(data => respond({ data })).catch(error => respond({ error: error.message || String(error) }));
+      return true;
+    }
     if (message?.type !== 'FMG_DRIVE_UI_V1') return;
     // Only the private settings page can authorize login, resolve conflicts or restore data.
     if (sender.id !== chrome.runtime.id || sender.url !== chrome.runtime.getURL('drive-sync/settings.html')) { respond({ error: 'Không được phép.' }); return; }

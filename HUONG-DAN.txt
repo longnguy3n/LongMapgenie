@@ -1,4 +1,4 @@
-LMG 1.2.0 — LONGMAPGINE + GOOGLE DRIVE + TỰ CẬP NHẬT
+LMG 1.2.1 — LONGMAPGINE + GOOGLE DRIVE + TỰ CẬP NHẬT
 
 Repository: https://github.com/longnguy3n/LongMapgine
 Tải bản cài: https://github.com/longnguy3n/LongMapgine/releases/latest
@@ -7,7 +7,7 @@ Extension ID: okoelmnpaigkpbnooodiafamdbikbian
 1. SAO LƯU VÀ CÀI BẢN SỬA
 
 - Trong FMG hoặc bản LMG trước, dùng Export all games để tải bản sao JSON.
-- Giải nén LMG-1.2.0-chrome.zip vào một thư mục cố định.
+- Giải nén LMG-1.2.1-chrome.zip vào một thư mục cố định.
 - Mở chrome://extensions, tắt bản cũ. Không chạy hai bản cùng lúc.
 - Bật Developer mode, chọn Load unpacked, chọn thư mục vừa giải nén có manifest.json.
 - Mở popup LMG, bấm “Đồng bộ Google Drive”. Có thể vào Details > Extension options.
@@ -152,3 +152,11 @@ Drive uploads: https://developers.google.com/workspace/drive/api/guides/manage-u
 - Nếu chưa cài hoặc dùng installer cũ, giao diện hướng dẫn chạy lại installer. Không cần quyền quản trị. Uninstall-LMG-Updater.cmd gỡ cả tác vụ và cầu nối với Chrome.
 - Nếu lệnh cấu hình báo đã lưu Client ID mà nút Kết nối vẫn mờ: nhấn Reload của LMG trong chrome://extensions, không chỉ F5 trang đồng bộ.
 - Bản 1.2.0 nhận biết Client ID mới trên đĩa và có nút Nạp lại extension để nhận OAuth. Lệnh configure-drive.cjs cũng in đường dẫn manifest đã sửa để đối chiếu với thư mục Load unpacked.
+
+10. TAB DATA VÀ SAO LƯU THỦ CÔNG (1.2.1)
+
+- Tab Data tự kiểm tra lại profile khi mở, đổi profile và khi dữ liệu được nạp muộn; không bị kẹt ở trạng thái các nút mờ.
+- Export all games xuất các game của profile đang dùng, định dạng v3 để nhập bằng Data Manager.
+- Tải bản sao toàn bộ dữ liệu xuất mọi bảng và mọi profile, kể cả chưa chọn profile hoặc chưa cấu hình OAuth. Nhập bản sao này bằng Google Drive > Khôi phục file database, không dùng Data Manager cũ.
+- Open data manager luôn mở được. Các nút dành cho game/bản đồ hiện tại vẫn cần mở đúng trang MapGenie và chọn profile.
+- Sau cập nhật, Reload extension và tải lại tab MapGenie để giao diện nhận bản sửa.

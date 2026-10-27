@@ -85,6 +85,9 @@ function harness({ local = data(), base, remote = [], failStatus, configured = t
       const response = await new Promise(resolve => chrome.runtime.onMessage.listeners[0]({ type: 'FMG_DRIVE_UI_V1', action, ...extra }, sender || { id: 'testid', url: 'chrome-extension://testid/drive-sync/settings.html' }, resolve));
       return copy(response);
     },
+    async popupExport(sender) {
+      return await new Promise(resolve => chrome.runtime.onMessage.listeners[0]({ type: 'LMG_DATA_EXPORT_V1' }, sender, resolve));
+    },
     close() { for (const id of timers) clearTimeout(id); }
   };
 }
@@ -109,6 +112,19 @@ test('OAuth status distinguishes a saved manifest from configuration loaded by C
       assert.equal(h.requests.length, 0);
     } finally { h.close(); }
   }
+});
+
+test('full popup backup works without an active profile and rejects web-page requests', async () => {
+  const local = data([12]);
+  const h = harness({ local, configured: false });
+  try {
+    const backup = await h.popupExport({ id: 'testid', url: 'chrome-extension://testid/popup.html' });
+    assert.equal(C.equal(backup.data, local), true);
+    assert.ok((await h.popupExport({ id: 'testid', url: 'https://mapgenie.io/' })).error);
+    assert.ok((await h.popupExport({ id: 'other', url: 'chrome-extension://testid/popup.html' })).error);
+    assert.equal(C.equal(h.db, local), true);
+    assert.equal(h.requests.length, 0);
+  } finally { h.close(); }
 });
 test('row and object ordering does not cause a false conflict', () => {
   assert.equal(C.equal(data([2, 1]), data([1, 2])), true);
