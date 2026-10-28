@@ -15,7 +15,7 @@ importScripts('../updates/core.js');
     checking = (async () => {
       let state = { ...previous, current, checkedAt: Date.now() };
       try {
-        const response = await fetch('https://api.github.com/repos/longnguy3n/LongMapgine/releases/latest', {
+        const response = await fetch('https://api.github.com/repos/longnguy3n/LongMapgenie/releases/latest', {
           headers: { Accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(15000)
         });
         if (!response.ok) throw new Error(response.status === 404 ? 'Chưa truy cập được release. Sẽ thử lại sau.' : response.status === 403 || response.status === 429 ? 'GitHub đang giới hạn lượt kiểm tra. Sẽ thử lại sau.' : 'Không kiểm tra được phiên bản (HTTP ' + response.status + ').');
@@ -81,7 +81,7 @@ importScripts('../updates/core.js');
     const applied = (await chrome.storage.local.get('lmgUpdates.applied'))['lmgUpdates.applied'];
     if (applied === marker.id) return;
     const disk = await (await fetch(chrome.runtime.getURL('manifest.json') + '?t=' + Date.now(), { cache: 'no-store' })).json();
-    if (disk.version !== marker.version || disk.key !== chrome.runtime.getManifest().key || disk.name !== 'LMG') return;
+    if (disk.version !== marker.version || disk.key !== chrome.runtime.getManifest().key || !['LMG', 'LongMapgenie'].includes(disk.name)) return;
     if (globalThis.LMGUpdateGate?.busy()) return;
     applying = true;
     try {

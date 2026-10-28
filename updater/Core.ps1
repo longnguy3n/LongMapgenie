@@ -1,6 +1,6 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-$script:LMGRepo = 'https://github.com/longnguy3n/LongMapgine'
+$script:LMGRepo = 'https://github.com/longnguy3n/LongMapgenie'
 $script:LMGKey = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxEYYLZpsqYtLR55634okNz1Jib3QnwlY39am954jObqmFmyLOC8o6rwRUw0/AjZsNXzucuOAk3bDO+CjZW9DVqTbBrBcy0LCoLF0oOvW5PLBT1A7SxWRso2Ky03dgXCDCdNx2F/+rqfTuQMRRRoSn7XBFIrONoJv5C3QeDptJ2QCXnujQ1KcLz9N0TcExHkXMdhJWhE8shC+h7sKW6Xfjld3MPGul29VdL4mQvXgevqol4qQnsyHx6Y7XOm3dwfVgzADlT2NRG3CsJzAHM+Dv2Q7Q6LxMwyM8QzJhZnPVlPyI27PdV8TUbKbQPnnHGs7vhdYST6y1FQwbkx7lqIIrQIDAQAB'
 
 function Get-LMGProperty($Object, [string]$Name, $Default = $null) {
@@ -26,7 +26,7 @@ function Get-LMGRoot([string]$Path) {
     Assert-LMGNoLinks $root
     if (Test-Path -LiteralPath (Join-Path $root '.git')) { throw 'Choose an extracted extension folder, not the Git source checkout.' }
     $manifest = Get-Content -LiteralPath (Join-Path $root 'manifest.json') -Raw | ConvertFrom-Json
-    if ($manifest.name -ne 'LMG' -or $manifest.key -ne $script:LMGKey) { throw 'The selected folder is not this LMG extension.' }
+    if (@('LMG','LongMapgenie') -notcontains $manifest.name -or $manifest.key -ne $script:LMGKey) { throw 'The selected folder is not this LMG extension.' }
     $null = Get-LMGVersion $manifest.version
     return $root
 }
@@ -112,7 +112,7 @@ function Install-LMGPackage([string]$Root, [string]$ZipPath, [string]$Checksum, 
     Expand-LMGPackage $ZipPath $stage
     $nextPath = Join-Path $stage 'manifest.json'
     $next = Get-Content -LiteralPath $nextPath -Raw | ConvertFrom-Json
-    if ($next.name -ne 'LMG' -or $next.key -ne $script:LMGKey -or $next.version -ne $Version -or $next.manifest_version -ne 3) { throw 'Release identity/version does not match the installed extension.' }
+    if (@('LMG','LongMapgenie') -notcontains $next.name -or $next.key -ne $script:LMGKey -or $next.version -ne $Version -or $next.manifest_version -ne 3) { throw 'Release identity/version does not match the installed extension.' }
     foreach ($required in @('background.js','page.js','popup.html','drive-sync\entry.js','drive-sync\worker.js')) {
         if (!(Test-Path -LiteralPath (Join-Path $stage $required) -PathType Leaf)) { throw ('Incomplete package: ' + $required) }
     }

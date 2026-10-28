@@ -17,7 +17,7 @@ function Fixture {
     $installed = Join-Path $base 'LMG chosen folder'
     $source = Join-Path $base 'release'
     New-Item -ItemType Directory -Path $installed,$source | Out-Null
-    $old = $template | ConvertFrom-Json; $old.version = '1.0.0'
+    $old = $template | ConvertFrom-Json; $old.version = '1.0.0'; $old.name = 'LMG'
     $old | Add-Member -NotePropertyName oauth2 -NotePropertyValue @{ client_id='keep-me.apps.googleusercontent.com'; scopes=@('https://www.googleapis.com/auth/drive.appdata') } -Force
     Write-LMGJson (Join-Path $installed 'manifest.json') $old
     $new = $template | ConvertFrom-Json; $new.version = '1.1.0'
@@ -36,6 +36,7 @@ RunTest 'verified package swaps directory, preserves OAuth, retains backup and w
     $result = Install-LMGPackage $f.Root $f.Zip $hash '1.1.0'
     $m = Get-Content -LiteralPath (Join-Path $f.Root 'manifest.json') -Raw | ConvertFrom-Json
     Assert ($m.version -eq '1.1.0') 'Version not updated.'
+    Assert ($m.name -eq 'LongMapgenie') 'Project rename was not installed.'
     Assert ($m.oauth2.client_id -eq 'keep-me.apps.googleusercontent.com') 'OAuth was lost.'
     Assert (Test-Path -LiteralPath (Join-Path $result.Backup 'manifest.json')) 'Backup missing.'
     $marker = Get-Content -LiteralPath (Join-Path $f.Root 'lmg-update-status.json') -Raw | ConvertFrom-Json

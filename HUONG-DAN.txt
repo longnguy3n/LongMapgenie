@@ -1,13 +1,13 @@
-LMG 1.3.0 — LONGMAPGINE + GOOGLE DRIVE + TỰ CẬP NHẬT
+LMG 1.4.0 — LONGMAPGENIE + GOOGLE DRIVE + TỰ CẬP NHẬT
 
-Repository: https://github.com/longnguy3n/LongMapgine
-Tải bản cài: https://github.com/longnguy3n/LongMapgine/releases/latest
+Repository: https://github.com/longnguy3n/LongMapgenie
+Tải bản cài: https://github.com/longnguy3n/LongMapgenie/releases/latest
 Extension ID: okoelmnpaigkpbnooodiafamdbikbian
 
 1. SAO LƯU VÀ CÀI BẢN SỬA
 
 - Trong FMG hoặc bản LMG trước, dùng Export all games để tải bản sao JSON.
-- Giải nén LMG-1.3.0-chrome.zip vào một thư mục cố định.
+- Giải nén LMG-1.4.0-chrome.zip vào một thư mục cố định.
 - Mở chrome://extensions, tắt bản cũ. Không chạy hai bản cùng lúc.
 - Bật Developer mode, chọn Load unpacked, chọn thư mục vừa giải nén có manifest.json.
 - Mở popup LMG, bấm “Đồng bộ Google Drive”. Có thể vào Details > Extension options.
@@ -166,7 +166,7 @@ Drive uploads: https://developers.google.com/workspace/drive/api/guides/manage-u
 
 - Tab Data tự kiểm tra lại profile khi mở, đổi profile và khi dữ liệu được nạp muộn; không bị kẹt ở trạng thái các nút mờ.
 - Export all games xuất các game của profile đang dùng, định dạng v3 để nhập bằng Data Manager.
-- Tải bản sao toàn bộ dữ liệu xuất mọi bảng và mọi profile, kể cả chưa chọn profile hoặc chưa cấu hình OAuth. Nhập bản sao này bằng Google Drive > Khôi phục file database, không dùng Data Manager cũ.
+- Sao lưu mọi bảng/profile bằng Đồng bộ Google Drive > Tải database hiện tại, kể cả chưa chọn profile hoặc chưa cấu hình OAuth. Nhập bản sao bằng Khôi phục file database trong cùng trang. Nút sao lưu trùng ở tab Data đã được gỡ từ 1.4.0.
 - Open data manager luôn mở được. Các nút dành cho game/bản đồ hiện tại vẫn cần mở đúng trang MapGenie và chọn profile.
 - Sau cập nhật, Reload extension và tải lại tab MapGenie để giao diện nhận bản sửa.
 
@@ -174,7 +174,19 @@ Drive uploads: https://developers.google.com/workspace/drive/api/guides/manage-u
 
 - Mở tab Profiles > Tạo profile, kể cả khi danh sách đang trống hoặc chưa đăng nhập MapGenie. Profile đầu tiên được chọn tự động.
 - Bấm tên profile để chuyển; tải lại tab MapGenie nếu cần.
-- Profile cục bộ này do LMG quản lý, không cần MapGenie Pro. Nhập dữ liệu từ tài khoản MapGenie vẫn cần đăng nhập tài khoản đó.
+- Profile cục bộ này do LMG quản lý, không cần MapGenie Pro. Tính năng import từ tài khoản MapGenie đã được bỏ ở 1.4.0; nhập file qua Data Manager vẫn còn.
 - Đã sửa lỗi ID trùng khi tạo profile thứ ba và khi tạo đồng thời.
 - Xóa profile mới nhất cần xác nhận. Tiến độ cũ được giữ trong database; profile mới không dùng lại ID còn gắn với tiến độ đó.
 - Thông báo lỗi đọc/tạo/chọn profile được hiển thị riêng, không còn đánh đồng danh sách trống với trạng thái đăng nhập.
+
+12. ĐỔI TÊN VÀ ĐỒNG BỘ PROFILE (1.4.0)
+
+- Trong Profiles, bấm Đổi tên bên cạnh profile, nhập tên (1–80 ký tự), bấm Lưu.
+- Đổi tên giữ nguyên ID, profile đang chọn, tiến độ và preset đã gắn với profile.
+- Tất cả profile và tên được đồng bộ cùng database. Bấm Đồng bộ ngay trên máy
+  nguồn, đồng bộ ở máy nhận rồi tải lại bản đồ. Dùng cùng tài khoản Google/OAuth.
+- Repo chính thức đổi thành https://github.com/longnguy3n/LongMapgenie.
+- Nếu nâng từ 1.3.0 trở xuống: tải/giải nén 1.4.0, chạy Install-LMG-Updater.cmd
+  của bản mới và chọn thư mục extension đang dùng. Bấm Cập nhật ngay, sau khi
+  cài xong nhấn Reload trong chrome://extensions một lần và tải lại bản đồ.
+  Updater mới giữ OAuth và dữ liệu; các lần cập nhật sau dùng repo mới tự động.

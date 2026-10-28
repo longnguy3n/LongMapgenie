@@ -85,9 +85,6 @@ function harness({ local = data(), base, remote = [], failStatus, configured = t
       const response = await new Promise(resolve => chrome.runtime.onMessage.listeners[0]({ type: 'FMG_DRIVE_UI_V1', action, ...extra }, sender || { id: 'testid', url: 'chrome-extension://testid/drive-sync/settings.html' }, resolve));
       return copy(response);
     },
-    async popupExport(sender) {
-      return await new Promise(resolve => chrome.runtime.onMessage.listeners[0]({ type: 'LMG_DATA_EXPORT_V1' }, sender, resolve));
-    },
     close() { for (const id of timers) clearTimeout(id); }
   };
 }
@@ -114,17 +111,37 @@ test('OAuth status distinguishes a saved manifest from configuration loaded by C
   }
 });
 
-test('full popup backup works without an active profile and rejects web-page requests', async () => {
+test('Drive settings backup works without an active profile and rejects web-page requests', async () => {
   const local = data([12]);
   const h = harness({ local, configured: false });
   try {
-    const backup = await h.popupExport({ id: 'testid', url: 'chrome-extension://testid/popup.html' });
-    assert.equal(C.equal(backup.data, local), true);
-    assert.ok((await h.popupExport({ id: 'testid', url: 'https://mapgenie.io/' })).error);
-    assert.ok((await h.popupExport({ id: 'other', url: 'chrome-extension://testid/popup.html' })).error);
+    const backup = await h.ui('export');
+    assert.equal(C.equal(backup.data.data, local), true);
+    assert.ok((await h.ui('export', {}, { id: 'testid', url: 'https://mapgenie.io/' })).error);
+    assert.ok((await h.ui('export', {}, { id: 'other', url: 'chrome-extension://testid/drive-sync/settings.html' })).error);
     assert.equal(C.equal(h.db, local), true);
     assert.equal(h.requests.length, 0);
   } finally { h.close(); }
+});
+test('all profiles and renamed names sync without changing progress or preset ownership', async () => {
+  const before = data();
+  before.tables.profiles = [{ id: -1, name: 'Guest 1', active: 1 }, { id: -2, name: 'Other', active: 0 }];
+  before.tables.locations_v2 = [{ id: 4, game_id: 1, user_id: -1 }, { id: 5, game_id: 1, user_id: -2 }];
+  before.tables.presets = [{ id: 9, game_id: 1, user_id: -1, name: 'Loot', categories: [12] }];
+  const local = copy(before);
+  local.tables.profiles[0] = { ...local.tables.profiles[0], name: 'Kiếm sĩ Việt Nam', nameIsCustom: true };
+  const source = harness({ local, base: { id: 'base', data: before }, remote: [{ id: 'base', data: before }] });
+  try {
+    assert.equal((await source.ui('sync')).error, undefined);
+    assert.equal(source.writes.length, 1);
+    const receiver = harness({ remote: [{ id: 'renamed', data: source.writes[0].data }] });
+    try {
+      assert.equal((await receiver.ui('sync')).error, undefined);
+      assert.deepEqual(receiver.db.tables.profiles, C.canonical(local).tables.profiles);
+      assert.deepEqual(receiver.db.tables.locations_v2, C.canonical(before).tables.locations_v2);
+      assert.deepEqual(receiver.db.tables.presets, before.tables.presets);
+    } finally { receiver.close(); }
+  } finally { source.close(); }
 });
 test('row and object ordering does not cause a false conflict', () => {
   assert.equal(C.equal(data([2, 1]), data([1, 2])), true);
@@ -293,9 +310,9 @@ test('restore validates first, pauses sync, saves recovery, and restores every t
 });
 test('manifest hooks and private sync resources are wired correctly', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json')));
-  assert.equal(manifest.name, 'LMG');
+  assert.equal(manifest.name, 'LongMapgenie');
   assert.equal(manifest.version, JSON.parse(fs.readFileSync(path.join(root, 'package.json'))).version);
-  assert.equal(manifest.homepage_url, 'https://github.com/longnguy3n/LongMapgine');
+  assert.equal(manifest.homepage_url, 'https://github.com/longnguy3n/LongMapgenie');
   assert.ok(manifest.permissions.includes('identity'));
   assert.ok(manifest.permissions.includes('alarms'));
   assert.equal(manifest.background.service_worker, 'drive-sync/entry.js');

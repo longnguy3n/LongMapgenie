@@ -23,7 +23,7 @@
     el('update-time').textContent = state.checkedAt ? 'Kiểm tra gần nhất: ' + new Date(state.checkedAt).toLocaleString('vi-VN') : '';
     const helper = state.helper;
     el('update-helper').textContent = helper?.state === 'not-installed' || !helper ? 'Trình cập nhật Windows chưa được cài. Chạy Install-LMG-Updater.cmd trong thư mục LMG rồi chọn thư mục đã Load unpacked.' : helper.state === 'error' ? 'Trình cập nhật: ' + helper.message : helper.state === 'ready' ? 'Đã cài v' + helper.version + '. LMG sẽ tự nạp lại; tải lại tab MapGenie khi cần.' : helper.state === 'installing' ? 'Windows đang cài bản cập nhật…' : 'Trình cập nhật Windows đã cài. ' + (helper.message || '');
-    el('update-release').href = state.url || 'https://github.com/longnguy3n/LongMapgine/releases/latest';
+    el('update-release').href = state.url || 'https://github.com/longnguy3n/LongMapgenie/releases/latest';
     } finally { refreshing = false; }
   }
   el('update-now').addEventListener('click', async () => {

@@ -28,8 +28,8 @@ async function until(fn) { for (let i = 0; i < 80; i++) { if (await fn()) return
     cdp.on('Runtime.executionContextCreated', ({ context }) => worlds.push(context));
     await cdp.send('Runtime.enable');
     await map.goto('https://mapgenie.io/lmg-settings-test');
-    await until(() => worlds.some(w => w.name === 'LMG'));
-    await cdp.send('Runtime.evaluate', { contextId: worlds.find(w => w.name === 'LMG').id, expression: 'globalThis.LMGMapSettingsReady', awaitPromise: true, returnByValue: true });
+    await until(() => worlds.some(w => w.name === 'LongMapgenie'));
+    await cdp.send('Runtime.evaluate', { contextId: worlds.find(w => w.name === 'LongMapgenie').id, expression: 'globalThis.LMGMapSettingsReady', awaitPromise: true, returnByValue: true });
     await map.evaluate(key => {
       localStorage.setItem('auth_token', 'must-stay-local');
       localStorage.setItem(key, 'true');

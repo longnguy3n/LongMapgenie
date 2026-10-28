@@ -87,6 +87,17 @@ test('incomplete installation, wrong identity and active sync prevent reloading'
     const h = harness(options); await h.call('apply'); assert.equal(h.reloads, 0);
   }
 });
+test('renamed extension is accepted while unrelated identities and old repository assets are rejected', async () => {
+  const h = harness({ marker: { state: 'ready', id: 'renamed', version: '1.2.0' }, disk: { name: 'LongMapgenie', version: '1.2.0', key: 'key' } });
+  await h.call('apply');
+  assert.equal(h.reloads, 1);
+  const wrong = harness({ marker: { state: 'ready', id: 'wrong', version: '1.2.0' }, disk: { name: 'Other', version: '1.2.0', key: 'key' } });
+  await wrong.call('apply');
+  assert.equal(wrong.reloads, 0);
+  const old = release();
+  old.assets.forEach(asset => { asset.browser_download_url = asset.browser_download_url.replace('/LongMapgenie/', '/LongMapgine/'); });
+  assert.throws(() => C.release(old));
+});
 test('web pages cannot trigger updater controls', async () => {
   const h = harness();
   const response = await h.call('check', {}, { id: 'test', url: 'https://mapgenie.io/' });

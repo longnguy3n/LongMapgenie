@@ -1,6 +1,6 @@
 {
-  "name": "longmapgine",
-  "version": "1.3.0",
+  "name": "longmapgenie",
+  "version": "1.4.0",
   "private": true,
   "description": "LMG Chrome extension with optional Google Drive progress sync",
   "scripts": {

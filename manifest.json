@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "LMG",
-  "description": "LongMapgine: MapGenie enhancements with optional Google Drive progress sync.",
-  "version": "1.3.0",
+  "name": "LongMapgenie",
+  "description": "LongMapgenie: MapGenie enhancements with Google Drive sync for progress, profiles, settings and presets.",
+  "version": "1.4.0",
   "icons": {
     "16": "icon/16.png",
     "32": "icon/32.png",
@@ -109,7 +109,7 @@
     "open_in_tab": true
   },
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxEYYLZpsqYtLR55634okNz1Jib3QnwlY39am954jObqmFmyLOC8o6rwRUw0/AjZsNXzucuOAk3bDO+CjZW9DVqTbBrBcy0LCoLF0oOvW5PLBT1A7SxWRso2Ky03dgXCDCdNx2F/+rqfTuQMRRRoSn7XBFIrONoJv5C3QeDptJ2QCXnujQ1KcLz9N0TcExHkXMdhJWhE8shC+h7sKW6Xfjld3MPGul29VdL4mQvXgevqol4qQnsyHx6Y7XOm3dwfVgzADlT2NRG3CsJzAHM+Dv2Q7Q6LxMwyM8QzJhZnPVlPyI27PdV8TUbKbQPnnHGs7vhdYST6y1FQwbkx7lqIIrQIDAQAB",
-  "homepage_url": "https://github.com/longnguy3n/LongMapgine",
+  "homepage_url": "https://github.com/longnguy3n/LongMapgenie",
   "declarative_net_request": {
     "rule_resources": [
       {
@@ -118,5 +118,6 @@
         "path": "content-scripts/adblock-rules.json"
       }
     ]
-  }
+  },
+  "short_name": "LMG"
 }

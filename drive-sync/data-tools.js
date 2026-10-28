@@ -30,17 +30,3 @@ export function watchDataStatus(refresh) {
   window.addEventListener('focus', run);
   return () => { stopped = true; clearInterval(timer); window.removeEventListener('focus', run); };
 }
-
-export async function downloadFullBackup() {
-  const response = await chrome.runtime.sendMessage({ type: 'LMG_DATA_EXPORT_V1' });
-  if (response?.error) throw new Error(response.error);
-  if (!['fmg-database-v1', 'lmg-database-v2'].includes(response?.data?.format)) throw new Error('Chưa đọc được database. Hãy thử lại.');
-  const url = URL.createObjectURL(new Blob([JSON.stringify(response.data, null, 2)], { type: 'application/json' }));
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'lmg-database-' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
-  document.body.append(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 30000);
-}

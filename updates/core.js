@@ -1,6 +1,6 @@
 (function (root) {
   'use strict';
-  const REPO = 'https://github.com/longnguy3n/LongMapgine';
+  const REPO = 'https://github.com/longnguy3n/LongMapgenie';
   function version(value) {
     const match = /^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?$/.exec(String(value));
     if (!match) throw new Error('Phiên bản release không hợp lệ.');

@@ -1,4 +1,4 @@
-# LMG — LongMapgine
+# LMG — LongMapgenie
 
 Chrome extension for MapGenie with local progress storage and optional Google Drive synchronization.
 
@@ -6,7 +6,7 @@ LMG is based on the supplied FMG 3.0.12 Chrome bundle. It adds a separate Drive 
 
 ## Install
 
-1. Download `LMG-1.3.0-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgine/releases/latest) and extract it.
+1. Download `LMG-1.4.0-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgenie/releases/latest) and extract it.
 2. If you already use FMG, export your existing saves with **Export all games**, then disable that extension.
 3. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 4. Select the extracted folder containing `manifest.json`.
@@ -15,6 +15,8 @@ LMG is based on the supplied FMG 3.0.12 Chrome bundle. It adds a separate Drive 
 Do not run FMG and LMG together on the same page. Local storage inheritance can depend on Chrome's storage partitioning; keep the export when switching builds.
 
 ## Automatic Windows updates
+
+**One-time upgrade from 1.3.0 or earlier after the repository rename:** download and extract 1.4.0, run its **Install-LMG-Updater.cmd**, and select your existing installed extension folder. Then use **Cập nhật ngay** (or wait for the helper's first check) and press **Reload** in `chrome://extensions` once after installation. Old helpers pin the old repository URL and cannot accept the renamed repository's asset URLs. This route preserves your OAuth configuration. Subsequent updates use the corrected repository automatically.
 
 The repository and releases are public. LMG checks release metadata every six hours and shows a `NEW` badge when a newer stable package is available. GitHub outages or rate limits no longer produce the red popup error.
 
@@ -27,7 +29,7 @@ Chrome cannot replace an unpacked extension's files by itself. For automatic ins
 
 For the first transition from **v1.0.0**, install v1.1.0 and press **Reload** in `chrome://extensions` once: v1.0.0 does not contain the automatic reload listener. Later updates use the new listener. Preserve `oauth2` when replacing an existing configured manifest manually; the Windows updater preserves it automatically.
 
-The updater accepts only the exact LongMapgine release URL, verifies SHA-256 (and GitHub's asset digest when present), validates the extension public key/version and ZIP paths, preserves the local OAuth configuration, and swaps the complete folder with rollback if the swap fails. Backups remain in a sibling `.lmg-updates-*` directory. It does not change Chrome profiles or IndexedDB files. Downloads and the scheduled helper are under `%LOCALAPPDATA%\LongMapgine\updater\`.
+The updater accepts only the exact LongMapgenie release URL, verifies SHA-256 (and GitHub's asset digest when present), validates the extension public key/version and ZIP paths, preserves the local OAuth configuration, and swaps the complete folder with rollback if the swap fails. Backups remain in a sibling `.lmg-updates-*` directory. It does not change Chrome profiles or IndexedDB files. Downloads and the scheduled helper are under `%LOCALAPPDATA%\LongMapgine\updater\`.
 
 To stop background updates, run **Uninstall-LMG-Updater.cmd** and select the same extension folder. The task is removed; extension data and backups remain. Moving the extension folder requires uninstalling the old task and installing one for the new path.
 
@@ -73,6 +75,10 @@ The complete Vietnamese guide is [HUONG-DAN.txt](HUONG-DAN.txt). Configuration h
 - MapGenie authentication tokens, cookies and map caches are not included in Drive snapshots.
 
 Map settings are copied into IndexedDB and included in the same atomic snapshot/restore transaction as presets and progress. Stale tabs cannot write settings over a newly downloaded snapshot; reload the map when prompted. Settings are shared by game/map on a website, while presets retain their existing profile ownership. OAuth configuration, updater paths and the extension's power switch stay local.
+
+In **Profiles**, choose **Đổi tên**, enter a name and save. Names are trimmed and limited to 80 characters. Renaming retains the profile ID, active selection, progress and preset ownership. All profiles and their names are included in Drive snapshots; use **Đồng bộ ngay** after editing and refresh the receiving map after sync. Conflicting edits on two devices use the existing whole-snapshot conflict resolution.
+
+Full backup/restore controls are in **Đồng bộ Google Drive**. The duplicate Data-tab backup button and the MapGenie-account import action have been removed. File import through Data Manager and the per-profile/game exports remain available. The extension ID, database names and installed native-helper identifiers are retained for compatibility with existing data and OAuth.
 
 ## Ads and Admiral
 
@@ -134,7 +140,7 @@ Internal `fmg:*` database names, `FMG_DRIVE_*` messages and snapshot formats are
 
 ## Credits
 
-Original FMG project: [V1P3R-FMG/free-map-genie](https://github.com/V1P3R-FMG/free-map-genie), by V1P3R and its contributors. LMG branding and the Drive integration are maintained in [longnguy3n/LongMapgine](https://github.com/longnguy3n/LongMapgine). See [third-party notices](THIRD-PARTY-NOTICES.md).
+Original FMG project: [V1P3R-FMG/free-map-genie](https://github.com/V1P3R-FMG/free-map-genie), by V1P3R and its contributors. LMG branding and the Drive integration are maintained in [longnguy3n/LongMapgenie](https://github.com/longnguy3n/LongMapgenie). See [third-party notices](THIRD-PARTY-NOTICES.md).
 
 Official API references: [Chrome OAuth](https://developer.chrome.com/docs/extensions/how-to/integrate/oauth), [Drive application data](https://developers.google.com/workspace/drive/api/guides/appdata), [Drive uploads](https://developers.google.com/workspace/drive/api/guides/manage-uploads).
 

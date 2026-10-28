@@ -4,3 +4,13 @@
 ._profiles_czosh_1 #_add-profile-button_czosh_1,
 ._profiles_czosh_1 #_delete-profile-button_czosh_1 { width: auto; height: auto; min-height: 36px; padding: 8px 10px; margin: 4px; border-radius: 6px; font-size: 12px; }
 ._profiles_czosh_1 button:disabled { opacity: .5; cursor: default; }
+.lmg-profile-row { width: 100%; min-width: 0; margin-bottom: 8px; }
+.lmg-profile-actions { display: flex; align-items: stretch; gap: 6px; }
+.lmg-profile-actions button._profile_czosh_1 { flex: 1; min-width: 0; width: auto; margin: 0; }
+.lmg-profile-actions button._profile_czosh_1 span { overflow-wrap: anywhere; }
+.lmg-profile-rename, .lmg-profile-editor button { border: 1px solid #52675f; border-radius: 6px; background: #25332f; color: #e1eee8; padding: 6px 9px; font: 12px system-ui; cursor: pointer; flex-shrink: 0; }
+.lmg-profile-editor { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 6px; }
+.lmg-profile-editor input { flex: 1; min-width: 100px; width: 100px; padding: 8px; border: 1px solid #73988a; border-radius: 6px; background: #151b19; color: #fff; font: 13px system-ui; }
+.lmg-profile-editor p { width: 100%; margin: 4px 0; color: #ffb7b7; font: 12px system-ui; }
+._profiles_czosh_1 { max-height: none; }
+._tab-views_rx69o_30 { max-height: 400px; }

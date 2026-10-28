@@ -26,6 +26,8 @@ const root = path.resolve(__dirname, '..');
     for (const embedded of [false, true]) {
       await call('restore', { data: empty });
       const page = await context.newPage();
+      page.on('pageerror', error => console.log('Popup page error:', error.message));
+      page.on('console', message => { if (message.type() === 'error') console.log('Popup console:', message.text()); });
       if (embedded) {
         await page.goto('https://mapgenie.io/test');
         await page.evaluate(url => { const frame = document.createElement('iframe'); frame.src = url; frame.style = 'width:440px;height:700px'; document.body.append(frame); }, base + '/popup.html');
@@ -42,6 +44,26 @@ const root = path.resolve(__dirname, '..');
       await create.click();
       await profile('Guest 1').waitFor();
       assert.equal(await profile('Guest 1').getAttribute('aria-pressed'), 'true');
+      assert.equal(await target.locator('body').innerText().then(text => text.includes('V1P3R')), false);
+      await target.getByRole('button', { name: 'Đổi tên Guest 1', exact: true }).click();
+      await target.getByRole('textbox', { name: 'Tên profile' }).fill('   ');
+      await target.getByRole('button', { name: 'Lưu', exact: true }).click();
+      await target.getByRole('alert').filter({ hasText: '1 đến 80' }).waitFor();
+      await target.getByRole('textbox', { name: 'Tên profile' }).fill('Nháp');
+      await target.getByRole('button', { name: 'Hủy', exact: true }).click();
+      assert.equal((await snapshot()).tables.profiles[0].name, 'Guest 1');
+      await target.getByRole('button', { name: 'Đổi tên Guest 1', exact: true }).click();
+      await target.getByRole('textbox', { name: 'Tên profile' }).fill('  Kiếm sĩ Việt Nam  ');
+      await target.getByRole('button', { name: 'Lưu', exact: true }).click();
+      await profile('Kiếm sĩ Việt Nam').waitFor();
+      assert.equal(await profile('Kiếm sĩ Việt Nam').getAttribute('aria-pressed'), 'true');
+      assert.equal((await snapshot()).tables.profiles[0].id, -1);
+      assert.equal((await snapshot()).tables.profiles[0].name, 'Kiếm sĩ Việt Nam');
+      await assert.rejects(backend('renameProfile', [-1, '']), /1–80/);
+      await assert.rejects(backend('renameProfile', [-1, 'x'.repeat(81)]), /1–80/);
+      await assert.rejects(backend('renameProfile', [999999, 'Missing']), /không còn tồn tại/);
+      await assert.rejects(backend('renameProfile', [-1, 'Stale', 'Guest 1']), /vừa thay đổi/);
+      assert.equal((await snapshot()).tables.profiles[0].name, 'Kiếm sĩ Việt Nam');
       for (const n of [2, 3]) { await create.click(); await profile('Guest ' + n).waitFor(); }
       let data = await snapshot();
       assert.deepEqual(data.tables.profiles.map(p => p.id).sort(), [-1, -2, -3].sort());
@@ -56,17 +78,21 @@ const root = path.resolve(__dirname, '..');
       assert.deepEqual(added.map(p => p.id).sort(), [-4, -5].sort());
       data = await snapshot();
       data.tables.locations_v2.push({ user_id: -5, game_id: 1, id: 123 });
+      data.tables.presets.push({ id: 9, user_id: -5, game_id: 1, name: 'Filter', categories: [12] });
       await call('restore', { data });
+      await backend('renameProfile', [-5, 'Profile phụ', 'Guest 5']);
+      assert.equal((await snapshot()).tables.locations_v2[0].user_id, -5);
+      assert.equal((await snapshot()).tables.presets[0].user_id, -5);
       await backend('setActiveProfile', [-5]);
       await target.locator('[title="data"]').click();
       await target.locator('[title="profiles"]').click();
-      await profile('Guest 5').waitFor();
+      await profile('Profile phụ').waitFor();
       page.once('dialog', dialog => dialog.dismiss());
       await remove.click();
       assert.equal((await snapshot()).tables.profiles.length, 5);
       page.once('dialog', dialog => dialog.accept());
       await remove.click();
-      await profile('Guest 5').waitFor({ state: 'hidden' });
+      await profile('Profile phụ').waitFor({ state: 'hidden' });
       data = await snapshot();
       assert.deepEqual(data.tables.profiles.filter(p => p.active).map(p => p.id), [-1]);
       assert.equal(data.tables.locations_v2[0].user_id, -5);
@@ -94,7 +120,7 @@ const root = path.resolve(__dirname, '..');
         await page.screenshot({ path: path.join(__dirname, 'profiles-tab.png'), fullPage: true });
       }
       await page.close();
-      console.log('PASS: first/third/concurrent local profile creation, activation validation, delete confirmation/fallback, orphan progress protection and Data availability (' + (embedded ? 'embedded' : 'standalone') + ').');
+      console.log('PASS: profile rename/save/cancel/validation, stable IDs and ownership, first/third/concurrent creation, activation, delete fallback and Data availability (' + (embedded ? 'embedded' : 'standalone') + ').');
     }
   } finally { await context.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

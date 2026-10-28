@@ -11,7 +11,7 @@ try {
     catch { exit 0 }
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     $headers = @{ 'User-Agent' = 'LMG-Windows-Updater'; Accept = 'application/vnd.github+json' }
-    $remote = Invoke-RestMethod -Uri 'https://api.github.com/repos/longnguy3n/LongMapgine/releases/latest' -Headers $headers -TimeoutSec 60
+    $remote = Invoke-RestMethod -Uri 'https://api.github.com/repos/longnguy3n/LongMapgenie/releases/latest' -Headers $headers -TimeoutSec 60
     $release = Get-LMGRelease $remote
     $manifest = Get-Content -LiteralPath (Join-Path $root 'manifest.json') -Raw | ConvertFrom-Json
     if ((Get-LMGVersion $release.Version) -le (Get-LMGVersion $manifest.version)) {
