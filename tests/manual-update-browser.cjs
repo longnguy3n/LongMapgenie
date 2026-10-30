@@ -52,12 +52,25 @@ function install(uninstall = false) {
     await page.waitForFunction(() => document.getElementById('update-manual').textContent.includes('Install-LMG-Updater.cmd'));
     attempted = true;
     console.log(install().trim());
+    // Simulate an existing periodic installation, then verify reinstall removes its timer.
+    const marker = JSON.parse(fs.readFileSync(path.join(root, 'lmg-update-status.json')));
+    const taskName = marker.task;
+    const ps = command => execFileSync('powershell.exe', ['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-Command',command], { encoding: 'utf8' });
+    const taskLiteral = "'" + taskName.replaceAll("'", "''") + "'";
+    ps(`$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddHours(6) -RepetitionInterval (New-TimeSpan -Hours 6); Set-ScheduledTask -TaskName ${taskLiteral} -Trigger $trigger | Out-Null`);
+    install();
+    const scheduled = JSON.parse(ps(`$task = Get-ScheduledTask -TaskName ${taskLiteral}; [pscustomobject]@{Count=@($task.Triggers | Where-Object { $null -ne $_ }).Count;StartWhenAvailable=$task.Settings.StartWhenAvailable;Enabled=$task.Settings.Enabled;Demand=$task.Settings.AllowDemandStart} | ConvertTo-Json`));
+    assert.equal(scheduled.Count, 0);
+    assert.equal(scheduled.StartWhenAvailable, false);
+    assert.equal(scheduled.Enabled, true);
+    assert.equal(scheduled.Demand, true);
+    assert.equal(fs.existsSync(path.join(root, 'manual-triggered.txt')), false);
     await page.reload();
     await page.waitForFunction(() => document.getElementById('update-helper').textContent.includes('đã cài'));
     await page.locator('#update-now').click();
     await page.waitForFunction(() => document.getElementById('update-manual').textContent.includes('Đã kiểm tra và cài'), null, { timeout: 45000 });
     assert.equal(fs.readFileSync(path.join(root, 'manual-triggered.txt'), 'utf8'), 'ok');
-    console.log('PASS: real settings button -> native messaging -> scheduled task -> completion, without waiting six hours.');
+    console.log('PASS: periodic task migrated to zero triggers; no automatic run; settings button -> native host -> on-demand task -> completion.');
     assert.equal(await page.locator('#connect').isDisabled(), true);
     manifest.oauth2 = { client_id: 'test-only.apps.googleusercontent.com', scopes: ['https://www.googleapis.com/auth/drive.appdata'] };
     fs.writeFileSync(manifestPath, JSON.stringify(manifest));
@@ -68,7 +81,12 @@ function install(uninstall = false) {
     await page.locator('#reload-extension').click();
     await closed;
     page = await context.newPage();
-    await page.goto(base + '/drive-sync/settings.html');
+    let loaded = false;
+    for (let attempt = 0; attempt < 30; attempt++) {
+      try { await page.goto(base + '/drive-sync/settings.html'); loaded = true; break; }
+      catch { await new Promise(resolve => setTimeout(resolve, 200)); }
+    }
+    assert.equal(loaded, true, 'Extension should finish reloading');
     await page.waitForFunction(() => document.getElementById('oauth-status').textContent.includes('Chrome đã nhận'));
     assert.equal(await page.locator('#connect').isDisabled(), false);
     console.log('PASS: saved OAuth is detected before extension reload; reload button makes Chrome load it and enables Connect.');

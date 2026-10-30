@@ -17,7 +17,7 @@
     el('update-now').textContent = starting || manualRunning ? 'Đang cập nhật…' : 'Cập nhật ngay';
     el('update-manual').textContent = manualRunning ? 'Windows đang kiểm tra, tải và cài bản mới. LMG sẽ tự nạp lại khi hoàn tất.' : state.manual?.message || '';
     el('update-version').textContent = 'Đang dùng v' + state.current;
-    el('update-status').textContent = state.available ? 'Có bản v' + state.latest + '. Trình cập nhật Windows sẽ tự cài theo lịch nếu đã được thiết lập.' : state.checkedAt ? 'Chưa có bản mới hơn.' : 'Chưa kiểm tra release.';
+    el('update-status').textContent = state.available ? 'Có bản v' + state.latest + '. Bấm Cập nhật ngay để cài khi bạn muốn.' : state.checkedAt ? 'Chưa có bản mới hơn theo lần kiểm tra gần nhất.' : 'Chưa kiểm tra release. Bấm Kiểm tra phiên bản khi cần.';
     el('update-error').textContent = state.error || '';
     el('update-error').hidden = !state.error;
     el('update-time').textContent = state.checkedAt ? 'Kiểm tra gần nhất: ' + new Date(state.checkedAt).toLocaleString('vi-VN') : '';

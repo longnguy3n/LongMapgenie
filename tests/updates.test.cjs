@@ -15,14 +15,14 @@ function event() {
   return { listeners, addListener(fn) { listeners.push(fn); }, fire(...args) { listeners.forEach(fn => fn(...args)); } };
 }
 function harness({ response = release(), httpStatus = 200, marker = { state: 'not-installed' }, disk = { name: 'LMG', version: '1.2.0', key: 'key' }, busy = false, nativeReply } = {}) {
-  const storage = {}, alarms = [], badges = [], nativeCalls = [];
+  const storage = {}, alarms = [], cleared = [], badges = [], nativeCalls = [];
   let requests = 0, reloads = 0, flushes = 0;
   const chrome = {
     runtime: { id: 'test', getManifest: () => ({ name: 'LMG', version: '1.1.0', key: 'key' }), getURL: p => 'chrome-extension://test/' + p,
       onInstalled: event(), onStartup: event(), onMessage: event(), reload() { reloads++; },
       async sendNativeMessage(host, message) { nativeCalls.push({ host, message }); return nativeReply(message); } },
     storage: { local: { async get(key) { return { [key]: storage[key] }; }, async set(data) { Object.assign(storage, data); } } },
-    alarms: { onAlarm: event(), async get() {}, async create(name, options) { alarms.push({ name, ...options }); } },
+    alarms: { onAlarm: event(), async get() {}, async clear(name) { cleared.push(name); return true; }, async create(name, options) { alarms.push({ name, ...options }); } },
     action: { async setBadgeText(value) { badges.push(value.text); }, async setBadgeBackgroundColor() {} }
   };
   const context = vm.createContext({ chrome, URL, AbortSignal, console, LMGUpdateGate: { busy: () => busy, async prepare() { flushes++; return true; }, resume() {} },
@@ -34,7 +34,7 @@ function harness({ response = release(), httpStatus = 200, marker = { state: 'no
   });
   context.importScripts = () => vm.runInContext(fs.readFileSync(path.join(root, 'updates/core.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root, 'updates/worker.js'), 'utf8'), context);
-  return { storage, alarms, badges, chrome, nativeCalls, get requests() { return requests; }, get reloads() { return reloads; }, get flushes() { return flushes; },
+  return { storage, alarms, cleared, badges, chrome, nativeCalls, get requests() { return requests; }, get reloads() { return reloads; }, get flushes() { return flushes; },
     async call(action, extra = {}, sender = { id: 'test', url: 'chrome-extension://test/drive-sync/settings.html' }) {
       return await new Promise(resolve => chrome.runtime.onMessage.listeners[0]({ type: 'LMG_UPDATES_V1', action, ...extra }, sender, resolve));
     }
@@ -53,13 +53,21 @@ test('release validation requires stable tags and assets from the exact reposito
   assert.throws(() => C.release(malicious));
   assert.throws(() => C.release({ ...release(), assets: [] }));
 });
-test('periodic checks cache metadata and show a NEW badge without repeated network calls', async () => {
+test('only explicit settings checks fetch releases; startup, old alarms and popup reads stay offline', async () => {
   const h = harness();
+  h.chrome.runtime.onStartup.fire(); h.chrome.runtime.onInstalled.fire();
+  h.chrome.alarms.onAlarm.fire({ name: 'lmg-release-check' });
+  await h.call('status');
+  await h.call('status', {}, { id: 'test', url: 'chrome-extension://test/popup.html' });
+  assert.ok((await h.call('check', {}, { id: 'test', url: 'chrome-extension://test/popup.html' })).error);
+  assert.equal(h.requests, 0);
+  assert.equal(h.nativeCalls.length, 0);
   assert.equal((await h.call('check')).data.available, true);
   await h.call('check');
   assert.equal(h.requests, 1);
   assert.deepEqual(h.badges, ['NEW']);
-  assert.ok(h.alarms.some(a => a.name === 'lmg-release-check' && a.periodInMinutes === 360));
+  assert.ok(h.cleared.includes('lmg-release-check'));
+  assert.ok(!h.alarms.some(a => a.name === 'lmg-release-check'));
 });
 test('private repository, rate limit and offline-like HTTP errors are nonfatal', async () => {
   for (const status of [404, 403, 429, 503]) {
@@ -105,7 +113,8 @@ test('web pages cannot trigger updater controls', async () => {
 });
 test('legacy popup no longer makes an unauthenticated request with an error toast', () => {
   const popup = fs.readFileSync(path.join(root, 'chunks/popup-DkXAhNd0.js'), 'utf8');
-  assert.ok(popup.includes('type:"LMG_UPDATES_V1",action:"check"'));
+  assert.ok(popup.includes('type:"LMG_UPDATES_V1",action:"status"'));
+  assert.ok(!popup.includes('type:"LMG_UPDATES_V1",action:"check"'));
   assert.ok(!popup.includes('Failed to fetch latest version'));
 });
 

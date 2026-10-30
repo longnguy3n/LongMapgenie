@@ -107,6 +107,6 @@ RunTest 'installer can describe the selected folder without registering a task' 
     $output = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot '..\updater\Install-LMGUpdater.ps1') -ExtensionDirectory $f.Root -DescribeOnly
     Assert ($LASTEXITCODE -eq 0) 'DescribeOnly failed.'
     $info = $output | ConvertFrom-Json
-    Assert ($info.Folder -eq $f.Root -and $info.IntervalHours -eq 6 -and $info.RunLevel -eq 'Limited' -and $info.WindowStyle -eq 'Hidden') 'Installer configuration mismatch.'
+    Assert ($info.Folder -eq $f.Root -and $info.Mode -eq 'Manual' -and $info.IntervalHours -eq 0 -and $info.RunLevel -eq 'Limited' -and $info.WindowStyle -eq 'Hidden') 'Installer configuration mismatch.'
 }
 Write-Output ("Passed $script:passed Windows updater tests. Fixtures: $testRoot")

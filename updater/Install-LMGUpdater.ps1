@@ -17,7 +17,7 @@ try {
     $taskName = 'LMG Auto Update ' + $id
     $state = Join-Path $env:LOCALAPPDATA ('LongMapgine\updater\' + $id)
     if ($DescribeOnly) {
-        [pscustomobject]@{ Folder=$root; TaskName=$taskName; Helper=$state; IntervalHours=6; RunLevel='Limited'; WindowStyle='Hidden' } | ConvertTo-Json
+        [pscustomobject]@{ Folder=$root; TaskName=$taskName; Helper=$state; Mode='Manual'; IntervalHours=0; RunLevel='Limited'; WindowStyle='Hidden' } | ConvertTo-Json
         exit 0
     }
     if ($Uninstall) {
@@ -34,19 +34,19 @@ try {
     $powershell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
     $arguments = '-NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File "' + (Join-Path $state 'Update-LMG.ps1') + '" -ExtensionDirectory "' + $root + '"'
     $action = New-ScheduledTaskAction -Execute $powershell -Argument $arguments
-    $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval (New-TimeSpan -Hours 6)
-    $settings = New-ScheduledTaskSettingsSet -Hidden -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 10) -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+    # Keep the task identity used by native messaging, but replace every old timer trigger.
+    $settings = New-ScheduledTaskSettingsSet -Hidden -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 10) -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent().Name
     $principal = New-ScheduledTaskPrincipal -UserId $identity -LogonType Interactive -RunLevel Limited
-    Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Settings $settings -Principal $principal -Description ('Update LMG in ' + $root + ' from official GitHub releases; preserve OAuth and backups.') -Force | Out-Null
+    Register-ScheduledTask -TaskName $taskName -Action $action -Settings $settings -Principal $principal -Description ('Manually update LMG in ' + $root + ' only when requested from LMG; no automatic schedule.') -Force | Out-Null
     $nativeHost = Register-LMGNative $state $root $id
-    Write-LMGJson (Join-Path $root 'lmg-update-status.json') @{ state='installed'; message='Windows checks GitHub every 6 hours; Update now is available in LMG settings.'; task=$taskName; nativeHost=$nativeHost; time=[DateTime]::UtcNow.ToString('o') }
+    Write-LMGJson (Join-Path $root 'lmg-update-status.json') @{ state='installed'; mode='manual'; message='Manual updates only. No scheduled checks.'; task=$taskName; nativeHost=$nativeHost; time=[DateTime]::UtcNow.ToString('o') }
     Write-Host ('Installed: ' + $taskName)
     Write-Host ('Selected extension folder: ' + $root)
-    Write-Host 'First check runs in about one minute, then every 6 hours. LMG reloads after a successful update (from v1.1.0 onward). Keep Chrome Developer mode enabled.'
+    Write-Host 'No scheduled checks. Use Check version or Update now in LMG settings. Keep Chrome Developer mode enabled.'
     if ([Environment]::UserInteractive -and !$NoDialog) {
         Add-Type -AssemblyName System.Windows.Forms
-        [Windows.Forms.MessageBox]::Show('LMG updater installed. Close this installer. First check runs in about one minute, then every 6 hours. Keep Chrome Developer mode enabled. Folder: ' + $root, 'LMG', 'OK', 'Information') | Out-Null
+        [Windows.Forms.MessageBox]::Show('LMG manual updater installed. No scheduled checks. Use Update now in LMG settings. Folder: ' + $root, 'LMG', 'OK', 'Information') | Out-Null
     }
 } catch {
     Write-Error $_.Exception.Message

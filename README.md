@@ -6,7 +6,7 @@ LMG is based on the supplied FMG 3.0.12 Chrome bundle. It adds a separate Drive 
 
 ## Install
 
-1. Download `LMG-1.4.0-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgenie/releases/latest) and extract it.
+1. Download `LMG-1.4.1-chrome.zip` from [Releases](https://github.com/longnguy3n/LongMapgenie/releases/latest) and extract it.
 2. If you already use FMG, export your existing saves with **Export all games**, then disable that extension.
 3. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 4. Select the extracted folder containing `manifest.json`.
@@ -14,18 +14,18 @@ LMG is based on the supplied FMG 3.0.12 Chrome bundle. It adds a separate Drive 
 
 Do not run FMG and LMG together on the same page. Local storage inheritance can depend on Chrome's storage partitioning; keep the export when switching builds.
 
-## Automatic Windows updates
+## Manual updates
 
-**One-time upgrade from 1.3.0 or earlier after the repository rename:** download and extract 1.4.0, run its **Install-LMG-Updater.cmd**, and select your existing installed extension folder. Then use **Cập nhật ngay** (or wait for the helper's first check) and press **Reload** in `chrome://extensions` once after installation. Old helpers pin the old repository URL and cannot accept the renamed repository's asset URLs. This route preserves your OAuth configuration. Subsequent updates use the corrected repository automatically.
+**Upgrading an existing helper:** run **Install-LMG-Updater.cmd from 1.4.1 or newer** once and select the installed extension folder. This removes the old six-hour trigger while keeping manual updates. For copies older than the repository rename, use this new installer before clicking **Cập nhật ngay**, then Reload the extension once in `chrome://extensions` after installation. OAuth is preserved.
 
-The repository and releases are public. LMG checks release metadata every six hours and shows a `NEW` badge when a newer stable package is available. GitHub outages or rate limits no longer produce the red popup error.
+The repository and releases are public. **Kiểm tra phiên bản** fetches release metadata only when clicked. **Cập nhật ngay** starts the Windows helper to check, download and install. Chrome startup, opening the popup and opening the settings page do not check GitHub or start an update. A short click debounce avoids duplicate requests; there is no six-hour timer.
 
-Chrome cannot replace an unpacked extension's files by itself. For automatic installation on Windows:
+Chrome cannot replace an unpacked extension's files by itself. To install the manual Windows helper:
 
-1. Install/extract v1.1.0 or newer. Double-click **Install-LMG-Updater.cmd**.
+1. Install/extract v1.4.1 or newer. Double-click **Install-LMG-Updater.cmd**.
 2. In the folder chooser, select the **actual folder used by Chrome's Load unpacked**. It must contain LMG's `manifest.json`. A Git source checkout is deliberately rejected; use an extracted runtime folder.
-3. Close the installer. It registers a task for your current Windows user, with a hidden window and no elevated run level. The first check is scheduled about one minute later, then every six hours while you are signed in.
-4. Keep Chrome's **Developer mode enabled**. After a verified package is installed, LMG detects the ready marker within about one minute and reloads itself when Drive sync is not busy. Reload existing MapGenie tabs to use the new page scripts.
+3. Close the installer. It registers an on-demand task for your current Windows user, with no timer, startup trigger or missed-run catch-up. The existing task name is retained so native messaging keeps working. Installing the helper does not run it.
+4. Keep Chrome's **Developer mode enabled**. Click **Cập nhật ngay** when you want to install an update. After installation LMG reads the local ready marker and reloads itself when Drive sync is not busy. This local-file check does not contact GitHub or launch PowerShell. Reload existing MapGenie tabs to use the new page scripts.
 
 For the first transition from **v1.0.0**, install v1.1.0 and press **Reload** in `chrome://extensions` once: v1.0.0 does not contain the automatic reload listener. Later updates use the new listener. Preserve `oauth2` when replacing an existing configured manifest manually; the Windows updater preserves it automatically.
 

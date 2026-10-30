@@ -1,4 +1,4 @@
-LMG 1.4.0 — LONGMAPGENIE + GOOGLE DRIVE + TỰ CẬP NHẬT
+LMG 1.4.1 — LONGMAPGENIE + GOOGLE DRIVE + CẬP NHẬT THEO YÊU CẦU
 
 Repository: https://github.com/longnguy3n/LongMapgenie
 Tải bản cài: https://github.com/longnguy3n/LongMapgenie/releases/latest
@@ -7,7 +7,7 @@ Extension ID: okoelmnpaigkpbnooodiafamdbikbian
 1. SAO LƯU VÀ CÀI BẢN SỬA
 
 - Trong FMG hoặc bản LMG trước, dùng Export all games để tải bản sao JSON.
-- Giải nén LMG-1.4.0-chrome.zip vào một thư mục cố định.
+- Giải nén LMG-1.4.1-chrome.zip vào một thư mục cố định.
 - Mở chrome://extensions, tắt bản cũ. Không chạy hai bản cùng lúc.
 - Bật Developer mode, chọn Load unpacked, chọn thư mục vừa giải nén có manifest.json.
 - Mở popup LMG, bấm “Đồng bộ Google Drive”. Có thể vào Details > Extension options.
@@ -122,13 +122,15 @@ Các file mới nằm trong drive-sync/. Bundle gốc chỉ có hai điểm nố
 database adapter trong backend.js và tách port Drive khỏi bus LMG trong background.js.
 Popup được thêm nút mở trang Drive; manifest khai báo worker mới, quyền và options.
 
-8. CẬP NHẬT TỰ ĐỘNG TRÊN WINDOWS
+8. CẬP NHẬT THỦ CÔNG TRÊN WINDOWS
 
-- Chạy Install-LMG-Updater.cmd. Cửa sổ chọn thư mục sẽ hiện ra.
+- Chạy Install-LMG-Updater.cmd của bản 1.4.1 trở lên. Cửa sổ chọn thư mục sẽ hiện ra.
 - Chọn đúng thư mục LMG mà bạn đã chọn trong Load unpacked, có manifest.json.
   Dùng thư mục bản ZIP đã giải nén; không chọn Git source checkout có thư mục .git.
-- Đóng cửa sổ cài đặt sau khi hoàn tất. Updater chạy nền lần đầu sau khoảng một
-  phút, sau đó mỗi 6 giờ khi bạn đăng nhập Windows. Không cần Node.js để cập nhật.
+- Đóng cửa sổ cài đặt sau khi hoàn tất. Không chạy ngay, không có lịch mỗi 6 giờ.
+  Cài lại bằng installer mới sẽ xóa lịch cũ, chỉ giữ tác vụ chạy theo nút bấm.
+- Kiểm tra phiên bản chỉ xem release khi bấm, không gọi PowerShell. Cập nhật ngay
+  mới gọi Windows để kiểm tra/tải/cài. Mở Chrome hoặc popup không kiểm tra GitHub.
 - Giữ Developer mode trong Chrome ở trạng thái bật.
 - Updater tải ZIP từ release chính thức, kiểm tra SHA-256, Extension ID và phiên
   bản; giữ cấu hình OAuth. Thư mục cũ được giữ ở .lmg-updates-* bên cạnh thư mục LMG.
@@ -156,7 +158,7 @@ Drive uploads: https://developers.google.com/workspace/drive/api/guides/manage-u
 9. CẬP NHẬT NGAY VÀ NHẬN CẤU HÌNH OAUTH (1.2.0)
 
 - Chạy lại Install-LMG-Updater.cmd của bản 1.2.0 một lần, chọn thư mục đã giải nén đang được Load unpacked. Không chọn kho mã nguồn có .git.
-- Mở cài đặt LMG > Cập nhật LMG > Cập nhật ngay. Nút gọi trực tiếp tác vụ Windows để kiểm tra, tải và cài bản mới; không chờ lịch 6 giờ.
+- Mở cài đặt LMG > Cập nhật LMG > Cập nhật ngay. Nút gọi trực tiếp tác vụ Windows để kiểm tra, tải và cài bản mới. Từ 1.4.1 không có lịch tự động.
 - Kiểm tra phiên bản chỉ xem thông tin release, không cài bản mới.
 - Nếu chưa cài hoặc dùng installer cũ, giao diện hướng dẫn chạy lại installer. Không cần quyền quản trị. Uninstall-LMG-Updater.cmd gỡ cả tác vụ và cầu nối với Chrome.
 - Nếu lệnh cấu hình báo đã lưu Client ID mà nút Kết nối vẫn mờ: nhấn Reload của LMG trong chrome://extensions, không chỉ F5 trang đồng bộ.

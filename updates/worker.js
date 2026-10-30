@@ -7,10 +7,10 @@ importScripts('../updates/core.js');
   const MANUAL = 'lmgUpdates.manual';
   const read = async () => (await chrome.storage.local.get(KEY))[KEY] || {};
   const write = value => chrome.storage.local.set({ [KEY]: value });
-  async function check(force = false) {
+  async function check() {
     if (checking) return checking;
     const previous = await read();
-    const interval = force ? 15000 : 6 * 3600000;
+    const interval = 15000;
     if (previous.checkedAt && Date.now() - previous.checkedAt < interval) return { ...previous, current };
     checking = (async () => {
       let state = { ...previous, current, checkedAt: Date.now() };
@@ -91,14 +91,13 @@ importScripts('../updates/core.js');
     } finally { applying = false; globalThis.LMGUpdateGate?.resume(); }
   }
   async function schedule() {
-    if (!await chrome.alarms.get('lmg-release-check')) await chrome.alarms.create('lmg-release-check', { periodInMinutes: 360 });
+    // Migrate persistent alarms from older installations. Only explicit UI actions fetch releases.
+    await chrome.alarms.clear('lmg-release-check');
     if (!await chrome.alarms.get('lmg-local-update')) await chrome.alarms.create('lmg-local-update', { periodInMinutes: 1 });
   }
-  const backgroundCheck = () => { void check().catch(() => {}); };
-  chrome.runtime.onInstalled.addListener(() => { void schedule(); backgroundCheck(); });
-  chrome.runtime.onStartup.addListener(() => { void schedule(); backgroundCheck(); });
+  chrome.runtime.onInstalled.addListener(() => { void schedule(); });
+  chrome.runtime.onStartup.addListener(() => { void schedule(); });
   chrome.alarms.onAlarm.addListener(alarm => {
-    if (alarm.name === 'lmg-release-check') backgroundCheck();
     if (alarm.name === 'lmg-local-update') void applyReady().catch(() => {});
   });
   chrome.runtime.onMessage.addListener((message, sender, respond) => {
@@ -106,7 +105,10 @@ importScripts('../updates/core.js');
     const allowed = ['popup.html', 'drive-sync/settings.html'].map(p => chrome.runtime.getURL(p));
     if (sender.id !== chrome.runtime.id || !allowed.includes(sender.url)) { respond({ error: 'Không được phép.' }); return; }
     (async () => {
-      if (message.action === 'check') return await check(!!message.force);
+      if (message.action === 'check') {
+        if (sender.url !== chrome.runtime.getURL('drive-sync/settings.html')) throw new Error('Chỉ kiểm tra cập nhật từ trang cài đặt LMG.');
+        return await check();
+      }
       if (message.action === 'status') return { ...await read(), current, helper: await localStatus(), manual: await manualStatus() };
       if (message.action === 'update-now') {
         if (sender.url !== chrome.runtime.getURL('drive-sync/settings.html')) throw new Error('Chỉ cập nhật từ trang cài đặt LMG.');
